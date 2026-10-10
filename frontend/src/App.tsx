@@ -22,10 +22,10 @@ export default function App() {
   const fixture = data?.health.mode === 'fixtures'
   return <div className="app-shell">
     <aside className="sidebar" aria-label="Application navigation">
-      <a className="brand" href="/" aria-label="Vigil dashboard"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M3 5h5l6 17L20 5h5L14 27Z" /><path d="M11 5h6l-3 8Z" /></svg><span>VIGIL<span className="brand-sub">NETWORK OBSERVATORY</span></span></a>
+      <a className="brand" href="/" aria-label="Argus dashboard"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M3 5h5l6 17L20 5h5L14 27Z" /><path d="M11 5h6l-3 8Z" /></svg><span>ARGUS<span className="brand-sub">NETWORK OBSERVATORY</span></span></a>
       <div className="side-label">WORKSPACE</div>
       <nav aria-label="Main"><a className="nav-item active" href="/" aria-current="page"><span className="nav-symbol">▦</span>Overview<span className="nav-dot" /></a><button className="nav-item" disabled title="Available after Gate 0"><span className="nav-symbol">≋</span>Models<span className="soon">SOON</span></button><button className="nav-item" disabled title="Available after Gate 0"><span className="nav-symbol">ⓘ</span>About<span className="soon">SOON</span></button></nav>
-      <div className="sidebar-bottom"><span className="local-indicator" /> LOCAL WORKSPACE<p>Offline by design.<br />Benchmark-data prototype.</p><div className="sidebar-version">VIGIL / GATE 0<span>v0.1</span></div></div>
+      <div className="sidebar-bottom"><span className="local-indicator" /> LOCAL WORKSPACE<p>Offline by design.<br />Benchmark-data prototype.</p><div className="sidebar-version">ARGUS / GATE 0<span>v0.1</span></div></div>
     </aside>
     <div className="main-shell">
       <header className="topbar"><div className="breadcrumb">Workspace <span>/</span><strong>Overview</strong></div><div className="topbar-status"><span className="local-indicator" /> LOCAL RUNTIME<span className="divider" /><span className="mono">READ ONLY</span></div></header>
@@ -44,7 +44,7 @@ export default function App() {
           <section className="context-grid" aria-label="Experiment context"><div className="context-block"><div className="eyebrow">02 / TEMPORAL CONTRACT</div><h3>Observe now. Score the next window.</h3><div className="time-contract"><span>INPUT<span>[start_ts, end_ts)</span></span><b aria-hidden="true">→</b><span className="target-contract">TARGET<span>[end_ts, end_ts + {data.meta.window_seconds}s)</span></span></div><p>Ground-truth shading belongs to the target interval. Labels are evaluation-only and are not available to the model.</p></div><div className="context-block"><div className="eyebrow">03 / EVALUATION GUARDRAILS</div><h3>Onset recall is not overall recall.</h3><p>Onset means a benign input window followed by a malicious target window. Continuation alone is not early warning.</p><div className="baseline-note"><strong>Baseline context</strong>Current-window logistic regression is deployable. Oracle persistence uses current ground truth and is non-deployable. Comparison page follows Gate 0.</div></div></section>
           <div className="run-strip"><span>RUN <strong>{data.meta.run_id}</strong></span><span>WINDOW <strong>{data.meta.window_seconds}s</strong></span><span>LOOKBACK <strong>{data.meta.lookback_windows} windows</strong></span><span>{fixture ? 'FIXTURE DATA · NOT LIVE TRAFFIC' : 'BENCHMARK DATA · NOT LIVE TRAFFIC'}</span></div>
         </>}
-        <footer className="page-footer"><span>Vigil <span className="footer-separator">/</span> A local early-warning experiment</span><span>MODEL OUTPUT ≠ EVALUATION TRUTH</span></footer>
+        <footer className="page-footer"><span>Argus <span className="footer-separator">/</span> A local early-warning experiment</span><span>MODEL OUTPUT ≠ EVALUATION TRUTH</span></footer>
       </main>
     </div>
   </div>
