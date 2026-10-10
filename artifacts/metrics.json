@@ -1,0 +1,81 @@
+{
+  "run_id": "argus-run-1",
+  "test_windows": 17240,
+  "positive_rate": 0.886368909512761,
+  "attack_onset_windows": 1703,
+  "continuation_windows": 13578,
+  "threshold_policy": "validation F1 per predictive model",
+  "models": [
+    {
+      "precision": 0.8884381338742393,
+      "recall": 0.8885544139781428,
+      "f1": 0.8884962701217118,
+      "fpr": 0.8703420112302195,
+      "pr_auc": null,
+      "onset_recall": 0.0,
+      "latency_ms_per_window": 0.0,
+      "confusion": {
+        "tp": 13578,
+        "fp": 1705,
+        "tn": 254,
+        "fn": 1703
+      },
+      "name": "oracle_persistence",
+      "threshold": null
+    },
+    {
+      "precision": 0.8883720930232558,
+      "recall": 0.9999345592565931,
+      "f1": 0.9408577322126782,
+      "fpr": 0.9800918836140888,
+      "pr_auc": 0.8946365785731396,
+      "onset_recall": 1.0,
+      "latency_ms_per_window": 0.06083352491259575,
+      "confusion": {
+        "tp": 15280,
+        "fp": 1920,
+        "tn": 39,
+        "fn": 1
+      },
+      "name": "lr_current",
+      "threshold": 0.010447015499270984
+    },
+    {
+      "precision": 0.8883204464856694,
+      "recall": 0.9999345592565931,
+      "f1": 0.9408287667015578,
+      "fpr": 0.9806023481368045,
+      "pr_auc": 0.8956022870319169,
+      "onset_recall": 0.9994128009395185,
+      "latency_ms_per_window": 0.06360403494909406,
+      "confusion": {
+        "tp": 15280,
+        "fp": 1921,
+        "tn": 38,
+        "fn": 1
+      },
+      "name": "lr_lag",
+      "threshold": 0.006235907941975346
+    },
+    {
+      "precision": 0.886368909512761,
+      "recall": 1.0,
+      "f1": 0.9397619999385013,
+      "fpr": 1.0,
+      "pr_auc": 0.9023894784917638,
+      "onset_recall": 1.0,
+      "latency_ms_per_window": 16.5285209659487,
+      "confusion": {
+        "tp": 15281,
+        "fp": 1959,
+        "tn": 0,
+        "fn": 0
+      },
+      "name": "rf",
+      "threshold": 0.0
+    }
+  ],
+  "notes": [
+    "RF threshold is 0.0; test set is 88.6% attack"
+  ]
+}
