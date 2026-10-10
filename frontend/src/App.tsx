@@ -13,7 +13,7 @@ import {
   CartesianGrid,
 } from 'recharts'
 import type { AnalystNote, DashboardData, Health, Meta, Metrics, ModelMetrics, ModelName, TimelineWindow, WindowDetail } from './types'
-import { chartSeries, timelinePlotPoints } from './timeline'
+import { chartSeries, selectModelTimeline, timelinePlotPoints } from './timeline'
 
 const modelNames = {
   rf: 'Random Forest',
@@ -24,6 +24,12 @@ const modelNames = {
 
 const percent = (value: number) => `${(value * 100).toFixed(1)}%`
 const modelOrder: ModelName[] = ['oracle_persistence', 'lr_current', 'lr_lag', 'rf']
+const dashboardModelLabels: Record<ModelName, string> = {
+  rf: 'Random Forest',
+  lr_current: 'Current-window LR',
+  lr_lag: 'Lagged LR',
+  oracle_persistence: 'Persistence (non-deployable, diagnostic only)',
+}
 
 function metricText(value: number | null, metric: 'pr_auc' | 'f1' | 'recall' | 'onset_recall' | 'fpr' | 'latency_ms_per_window') {
   if (value === null || value === undefined) return 'N/A'
@@ -129,6 +135,7 @@ export default function App() {
   const routePage = () => window.location.pathname === '/models' ? 'models' : window.location.pathname === '/about' ? 'about' : 'dashboard'
   const [page, setPage] = useState<'dashboard' | 'models' | 'about'>(routePage)
   const [data, setData] = useState<DashboardData | null>(null)
+  const [selectedModel, setSelectedModel] = useState<ModelName>('rf')
   const [dashboardError, setDashboardError] = useState<string | null>(null)
   const [dashboardAttempt, setDashboardAttempt] = useState(0)
   const [selectedWindowId, setSelectedWindowId] = useState<number | null>(null)
@@ -225,14 +232,22 @@ export default function App() {
     }
   }
 
-  const rf = data?.metrics.models.find(model => model.name === 'rf')
+  const selectedModelMetrics = data?.metrics.models.find(model => model.name === selectedModel)
+  const selectedThreshold = selectedModel === 'oracle_persistence'
+    ? 0.5
+    : selectedModelMetrics?.threshold ?? (data?.meta.default_model === selectedModel ? data.meta.default_threshold : undefined)
+  const selectedTimeline = data && selectedThreshold !== undefined
+    ? selectModelTimeline(data.windows, selectedModel, selectedThreshold, data.meta.default_model)
+    : { available: false, windows: [] as TimelineWindow[] }
   const fixture = data?.health.mode === 'fixtures'
 
-  const chartWindows = data?.windows ?? []
+  const chartWindows = selectedTimeline.windows
   const series = data ? chartSeries(chartWindows, data.meta.window_seconds) : []
   const chartPoints = timelinePlotPoints(series, data?.meta.window_seconds ?? 0)
   const truthIntervals = series.flatMap(segment => segment.truth)
-  const topFlaggedWindows = data?.windows.filter(window => window.flagged).sort((a, b) => b.risk - a.risk).slice(0, 5) ?? []
+  const topFlaggedWindows = chartWindows.filter(window => window.flagged).sort((a, b) => b.risk - a.risk).slice(0, 5)
+  const selectedDetailRisk = windowDetail?.risk_by_model?.[selectedModel] ?? (selectedModel === data?.meta.default_model ? windowDetail?.risk : undefined)
+  const selectedDetailFlagged = selectedDetailRisk !== undefined && selectedThreshold !== undefined && selectedDetailRisk >= selectedThreshold
   const shapFeatures = [...(windowDetail?.top_features ?? [])].sort((a, b) => Math.abs(b.shap) - Math.abs(a.shap))
   const maxShapMagnitude = Math.max(...shapFeatures.map(feature => Math.abs(feature.shap)), 0)
 
@@ -326,17 +341,12 @@ export default function App() {
 
               {data && <section className="kpi-grid" aria-label="Test-period indicators">
                 <Kpi label="Test windows" value={String(data.metrics.test_windows)} caption="Chronological test partition" />
+                <Kpi label="Flagged windows" value={selectedTimeline.available ? String(chartWindows.filter(w => w.flagged).length) : '—'} caption={selectedThreshold === undefined ? 'Threshold unavailable' : `${selectedModel === 'oracle_persistence' ? 'Diagnostic boundary' : 'Risk'} ≥ ${selectedThreshold.toFixed(2)}`} accent />
+                <Kpi label={`${selectedModel === 'oracle_persistence' ? 'Persistence' : modelNames[selectedModel]} precision`} value={selectedModelMetrics ? percent(selectedModelMetrics.precision) : '—'} caption="Correct alerts / all alerts" evaluation />
+                <Kpi label={`${selectedModel === 'oracle_persistence' ? 'Persistence' : modelNames[selectedModel]} recall`} value={selectedModelMetrics ? percent(selectedModelMetrics.recall) : '—'} caption="All malicious target windows" evaluation />
                 <Kpi
-                  label="Flagged windows"
-                  value={String(data.windows.filter(w => w.flagged).length)}
-                  caption={`Risk ≥ ${data.meta.default_threshold.toFixed(2)} · default model`}
-                  accent
-                />
-                <Kpi label="RF precision" value={rf ? percent(rf.precision) : '—'} caption="Correct alerts / all alerts" evaluation />
-                <Kpi label="RF recall" value={rf ? percent(rf.recall) : '—'} caption="All malicious target windows" evaluation />
-                <Kpi
-                  label="RF onset recall"
-                  value={rf ? percent(rf.onset_recall) : '—'}
+                  label={`${selectedModel === 'oracle_persistence' ? 'Persistence' : modelNames[selectedModel]} onset recall`}
+                  value={selectedModelMetrics ? percent(selectedModelMetrics.onset_recall) : '—'}
                   caption={`${data.metrics.attack_onset_windows} attack-onset target windows`}
                   evaluation
                 />
@@ -353,26 +363,31 @@ export default function App() {
                     <div className="eyebrow">01 / RISK TIMELINE</div>
                     <h2 id="timeline-title">Next-window risk</h2>
                     <p>
-                      Scores from {modelNames[data.meta.default_model]} · {data.meta.window_seconds}s prediction horizon · All {data.windows.length} test windows
+                      Scores from {dashboardModelLabels[selectedModel]} · {data.meta.window_seconds}s prediction horizon · All {data.windows.length} test windows
                     </p>
                   </div>
-                  <span className="model-tag">
-                    <span className="local-indicator" />
-                    {modelNames[data.meta.default_model]}
-                    <span>DEFAULT</span>
-                  </span>
+                  <label className="model-tag model-select-label">Model
+                    <select aria-label="Dashboard model" value={selectedModel} onChange={event => setSelectedModel(event.target.value as ModelName)}>
+                      {modelOrder.slice().reverse().map(model => <option key={model} value={model}>{dashboardModelLabels[model]}{data.meta.default_model === model ? ' · default' : ''}</option>)}
+                    </select>
+                  </label>
                 </div>
 
                 <div className="chart-legend">
                   <span><i className="legend-line" />Risk score</span>
                   <span><i className="legend-point" />Flagged window</span>
-                  <span><i className="legend-threshold" />Threshold {data.meta.default_threshold.toFixed(2)}</span>
+                  <span><i className="legend-threshold" />{selectedModel === 'oracle_persistence' ? 'Diagnostic boundary' : 'Threshold'} {selectedThreshold?.toFixed(2) ?? 'unavailable'}</span>
                   <span className="evaluation-legend">
                     <i className="legend-truth" />Evaluation ground truth
                   </span>
                 </div>
 
-                <div className="chart-container">
+                {!selectedTimeline.available ? (
+                  <div className="state-panel model-series-empty" role="status">
+                    <strong>{selectedThreshold === undefined ? 'Model threshold unavailable' : `${modelNames[selectedModel]} scores unavailable`}</strong>
+                    <p>The timeline response does not include per-window scores for this model. Choose the default model or update the local API response to include risk_by_model.</p>
+                  </div>
+                ) : <div className="chart-container">
                   <ResponsiveContainer width="100%" height={260}>
                     <LineChart data={chartPoints} margin={{ top: 10, right: 20, bottom: 25, left: 0 }}>
                       <XAxis
@@ -402,7 +417,7 @@ export default function App() {
                         }}
                       />
                       <ReferenceLine
-                        y={data.meta.default_threshold}
+                        y={selectedThreshold ?? data.meta.default_threshold}
                         stroke="var(--amber)"
                         strokeDasharray="3 3"
                       />
@@ -444,7 +459,7 @@ export default function App() {
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                </div>
+                </div>}
 
                 <div className="inspect-bar">
                   <span>Quick inspect:</span>
@@ -551,9 +566,9 @@ export default function App() {
                   <div className="window-section-title">METRICS & RISK</div>
                   <div className="grid-3">
                     <div className="meta-card">
-                      <div className="meta-card-label">RISK SCORE (RF)</div>
-                      <div className="meta-card-val" style={{ color: windowDetail.flagged ? 'var(--amber)' : 'var(--mint)' }}>
-                        {windowDetail.risk.toFixed(3)} {windowDetail.flagged && '· FLAGGED'}
+                      <div className="meta-card-label">RISK SCORE ({modelNames[selectedModel]})</div>
+                      <div className="meta-card-val" style={{ color: selectedDetailFlagged ? 'var(--amber)' : 'var(--mint)' }}>
+                        {selectedDetailRisk === undefined ? 'Unavailable for selected model' : `${selectedDetailRisk.toFixed(3)} ${selectedDetailFlagged ? '· FLAGGED' : ''}`}
                       </div>
                     </div>
                     <div className="meta-card">

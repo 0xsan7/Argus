@@ -8,6 +8,7 @@ export interface Meta {
 }
 export interface TimelineWindow {
   id: number; sequence_id: string; start_ts: number; end_ts: number; risk: number;
+  risk_by_model?: Partial<Record<ModelName, number>>;
   flagged: boolean; truth_next: 0 | 1; evaluation_stage: string | null; explanation_available: boolean;
 }
 export interface ModelMetrics {

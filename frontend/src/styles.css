@@ -47,6 +47,7 @@ h1, h2, h3, p { margin: 0; }h1 { font-size: 27px; font-weight: 550; letter-spaci
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
 .chart-container { width: 100%; min-height: 280px; padding: 12px 20px 0; }
+.model-select-label { cursor: pointer; }.model-select-label select { max-width: 290px; padding: 5px 7px; border: 1px solid var(--border); border-radius: 3px; background: #111a16; color: var(--text); font-size: 10px; }.model-series-empty { margin: 0 20px 14px; min-height: 220px; }.model-series-empty p { max-width: 520px; line-height: 1.6; }
 .window-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(2px); }
 .window-modal { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; width: 90%; max-width: 650px; max-height: 85vh; overflow-y: auto; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .window-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 16px; }

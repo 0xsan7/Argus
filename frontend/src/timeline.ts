@@ -8,7 +8,24 @@ export interface TimelineWindowInput {
   truth_next: 0 | 1
   evaluation_stage?: string | null
   explanation_available?: boolean
+  risk_by_model?: Partial<Record<import('./types').ModelName, number>>
 }
+
+export function selectModelTimeline<T extends TimelineWindowInput>(
+  windows: T[],
+  model: import('./types').ModelName,
+  threshold: number,
+  defaultModel: import('./types').ModelName,
+): { available: boolean; windows: T[] } {
+  const selected = windows.map(window => {
+    const score = window.risk_by_model?.[model] ?? (model === defaultModel ? window.risk : undefined)
+    if (typeof score !== 'number' || !Number.isFinite(score)) return null
+    return { ...window, risk: score, flagged: score >= threshold } as T
+  })
+  if (selected.some(window => window === null)) return { available: false, windows: [] }
+  return { available: true, windows: selected as T[] }
+}
+
 
 export interface ChartPoint extends TimelineWindowInput {
   targetStart: number
