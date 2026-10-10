@@ -233,6 +233,8 @@ export default function App() {
   const chartPoints = timelinePlotPoints(series, data?.meta.window_seconds ?? 0)
   const truthIntervals = series.flatMap(segment => segment.truth)
   const topFlaggedWindows = data?.windows.filter(window => window.flagged).sort((a, b) => b.risk - a.risk).slice(0, 5) ?? []
+  const shapFeatures = [...(windowDetail?.top_features ?? [])].sort((a, b) => Math.abs(b.shap) - Math.abs(a.shap))
+  const maxShapMagnitude = Math.max(...shapFeatures.map(feature => Math.abs(feature.shap)), 0)
 
   return (
     <div className="app-shell">
@@ -524,7 +526,7 @@ export default function App() {
                 </div>
                 {windowDetail?.evaluation_stage && (
                   <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
-                    Stage: <span style={{ color: 'var(--truth)' }}>{windowDetail.evaluation_stage}</span> (dataset label, evaluation only)
+                    Stage: <span className="stage-tooltip" tabIndex={0} title="Dataset label, evaluation only. Not a model prediction." aria-label={`Stage ${windowDetail.evaluation_stage}. Dataset label, evaluation only. Not a model prediction.`} style={{ color: 'var(--truth)' }}>{windowDetail.evaluation_stage}</span> <span className="stage-context">(dataset label, evaluation only)</span>
                   </div>
                 )}
               </div>
@@ -572,14 +574,18 @@ export default function App() {
                       SHAP explanation unavailable for this window.
                     </div>
                   ) : (
-                    <div style={{ background: '#121a17', border: '1px solid var(--border)', borderRadius: 4, padding: '12px 14px' }}>
-                      {windowDetail.top_features.map((feat, i) => (
-                        <div key={i} className="shap-bar-row">
-                          <span className="shap-bar-name">{feat.name}</span>
-                          <span className="shap-bar-val">val: {feat.value}</span>
+                    <div className="shap-chart" role="region" aria-label="SHAP contribution chart">
+                      <div className="shap-chart-axis"><span>← lowers risk</span><span>0</span><span>raises risk →</span></div>
+                      {shapFeatures.map(feat => (
+                        <div key={feat.name} className="shap-bar-row" data-feature={feat.name} role="group">
+                          <span className="shap-bar-name" title={feat.name}>{feat.name}</span>
+                          <span className={`shap-track ${feat.shap < 0 ? 'negative' : 'positive'}`} role="meter" aria-label={`${feat.name} SHAP contribution`} aria-valuemin={-maxShapMagnitude} aria-valuemax={maxShapMagnitude} aria-valuenow={feat.shap}>
+                            <i className={`shap-bar-fill ${feat.shap < 0 ? 'negative' : 'positive'}`} style={{ width: `${maxShapMagnitude ? (Math.abs(feat.shap) / maxShapMagnitude) * 50 : 0}%` }} />
+                          </span>
                           <span className={`shap-score ${feat.shap >= 0 ? 'shap-pos' : 'shap-neg'}`}>
                             {feat.shap >= 0 ? `+${feat.shap.toFixed(4)}` : feat.shap.toFixed(4)}
                           </span>
+                          <span className="shap-bar-val" title="Feature value">val: {feat.value}</span>
                         </div>
                       ))}
                     </div>
