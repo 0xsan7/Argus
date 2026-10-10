@@ -20,3 +20,34 @@ export interface Metrics {
   continuation_windows: number; threshold_policy: string; models: ModelMetrics[]; notes: string[];
 }
 export interface DashboardData { health: Health; meta: Meta; windows: TimelineWindow[]; metrics: Metrics }
+
+export interface TopFeature {
+  name: string
+  value: number
+  shap: number
+}
+
+export interface WindowDetail {
+  id: number
+  sequence_id: string
+  start_ts: number
+  end_ts: number
+  split: string
+  risk: number
+  risk_by_model: Record<string, number>
+  flagged: boolean
+  truth_now: number | null
+  truth_next: number
+  evaluation_attack_category: string | null
+  evaluation_stage: string | null
+  explanation_available: boolean
+  top_features: TopFeature[]
+  counts: {
+    flows: number
+    bytes: number
+    packets: number
+    unique_src: number
+    unique_dst: number
+    unique_dst_ports: number
+  }
+}

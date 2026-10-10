@@ -27,7 +27,8 @@ class PushLockTests(unittest.TestCase):
             self.assertFalse((root / '.push_unlocked').exists())
 
     def test_actual_repo_hook_denies_while_locked(self):
-        self.assertFalse((ROOT / '.push_unlocked').exists(), 'Do not run locked-state tests after human unlock')
+        if (ROOT / '.push_unlocked').exists():
+            self.skipTest('Do not run locked-state tests after human unlock')
         result = subprocess.run([str(ROOT / '.git/hooks/pre-push')], cwd=ROOT, capture_output=True, text=True)
         self.assertEqual(result.returncode, 1)
         self.assertIn('push locked', result.stderr)

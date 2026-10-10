@@ -81,5 +81,19 @@ def main():
     for k, v in thresholds.items():
         print(f"Threshold {k}: {v:.4f}")
 
+
+    # Save models for S5
+    import pickle
+    with open("configs/models.pkl", "wb") as f:
+        pickle.dump({
+            "scaler_curr": scaler_curr,
+            "scaler_all": scaler_all,
+            "lr_current": lr_current,
+            "lr_lag": lr_lag,
+            "rf": rf,
+            "current_features": current_features,
+            "all_features": all_features
+        }, f)
+
 if __name__ == "__main__":
     main()
