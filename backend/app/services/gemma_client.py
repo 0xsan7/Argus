@@ -21,8 +21,10 @@ def generate_note(prompt: str) -> dict | None:
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
     
+    timeout_s = float(os.environ.get("GEMMA_TIMEOUT_S", "60"))
+    
     try:
-        with urllib.request.urlopen(req, timeout=20.0) as response:
+        with urllib.request.urlopen(req, timeout=timeout_s) as response:
             result = json.loads(response.read().decode("utf-8"))
             return json.loads(result.get("response", "{}"))
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
