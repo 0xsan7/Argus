@@ -42,7 +42,7 @@ test('real data dashboard renders test windows, flagged points, and handles insp
   expect(screen.getByText(flaggedCount)).toBeVisible()
 
   // 3. Confirm opening a flagged window shows detail view with top features
-  const flaggedBtn = screen.getByRole('button', { name: /Flagged Window #0/ })
+  const flaggedBtn = screen.getByRole('button', { name: /^#0 ·/ })
   fireEvent.click(flaggedBtn)
 
   expect(await screen.findByText('Window #0 Inspection')).toBeVisible()
@@ -58,8 +58,9 @@ test('real data dashboard renders test windows, flagged points, and handles insp
   fireEvent.click(closeBtn)
 
   // 4. Confirm opening train or validation window does not crash
-  const trainValBtn = screen.getByRole('button', { name: /Train\/Val Window #99999/ })
-  fireEvent.click(trainValBtn)
+  const inspectInput = screen.getByPlaceholderText('Window ID')
+  fireEvent.change(inspectInput, { target: { value: '99999' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Open' }))
 
   expect(await screen.findByText('Window #99999 Inspection')).toBeVisible()
   expect(await screen.findByText(/Window #99999 not found in test partition/)).toBeVisible()

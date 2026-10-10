@@ -83,10 +83,10 @@ describe('Frontend Note Panel', () => {
 
   it('renders "Generate analyst note" button, handles loading, and displays generated note', async () => {
     const fetchMock = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
-      if (url.includes('/api/health')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.health) })
-      if (url.includes('/api/meta')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.meta) })
-      if (url.includes('/api/timeline')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.windows) })
-      if (url.includes('/api/metrics')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.metrics) })
+      if (url.includes('/api/health')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.health) })
+      if (url.includes('/api/meta')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.meta) })
+      if (url.includes('/api/timeline')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.windows) })
+      if (url.includes('/api/metrics')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.metrics) })
       if (url === '/api/windows/0' && !options?.method) {
         return Promise.resolve({ ok: true, json: () => Promise.resolve(windowDetailData) })
       }
@@ -113,7 +113,7 @@ describe('Frontend Note Panel', () => {
     render(<App />)
 
     // Inspect window #0 via quick inspect
-    const quickBtn = await screen.findByText('Flagged Window #0')
+    const quickBtn = await screen.findByRole('button', { name: /^#0 ·/ })
     fireEvent.click(quickBtn)
 
     // Wait for window modal
@@ -136,10 +136,10 @@ describe('Frontend Note Panel', () => {
 
   it('renders template fallback badge when source is template', async () => {
     const fetchMock = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
-      if (url.includes('/api/health')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.health) })
-      if (url.includes('/api/meta')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.meta) })
-      if (url.includes('/api/timeline')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.windows) })
-      if (url.includes('/api/metrics')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.metrics) })
+      if (url.includes('/api/health')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.health) })
+      if (url.includes('/api/meta')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.meta) })
+      if (url.includes('/api/timeline')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.windows) })
+      if (url.includes('/api/metrics')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.metrics) })
       if (url === '/api/windows/0' && !options?.method) {
         return Promise.resolve({ ok: true, json: () => Promise.resolve(windowDetailData) })
       }
@@ -165,7 +165,7 @@ describe('Frontend Note Panel', () => {
 
     render(<App />)
 
-    const quickBtn = await screen.findByText('Flagged Window #0')
+    const quickBtn = await screen.findByRole('button', { name: /^#0 ·/ })
     fireEvent.click(quickBtn)
 
     const generateBtn = await screen.findByText('Generate analyst note')
@@ -177,10 +177,10 @@ describe('Frontend Note Panel', () => {
 
   it('handles error state cleanly without raw stack traces', async () => {
     const fetchMock = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
-      if (url.includes('/api/health')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.health) })
-      if (url.includes('/api/meta')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.meta) })
-      if (url.includes('/api/timeline')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.windows) })
-      if (url.includes('/api/metrics')) return Promise.resolve({ json: () => Promise.resolve(fixtureData.metrics) })
+      if (url.includes('/api/health')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.health) })
+      if (url.includes('/api/meta')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.meta) })
+      if (url.includes('/api/timeline')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.windows) })
+      if (url.includes('/api/metrics')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.metrics) })
       if (url === '/api/windows/0' && !options?.method) {
         return Promise.resolve({ ok: true, json: () => Promise.resolve(windowDetailData) })
       }
@@ -198,7 +198,7 @@ describe('Frontend Note Panel', () => {
 
     render(<App />)
 
-    const quickBtn = await screen.findByText('Flagged Window #0')
+    const quickBtn = await screen.findByRole('button', { name: /^#0 ·/ })
     fireEvent.click(quickBtn)
 
     const generateBtn = await screen.findByText('Generate analyst note')

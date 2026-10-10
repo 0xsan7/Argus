@@ -22,13 +22,13 @@ test('fixture dashboard shows five grounded KPIs and the explicit fixture warnin
   expect(await screen.findByText('ILLUSTRATIVE UI FIXTURE — NOT BENCHMARK RESULTS')).toBeVisible()
   const kpis = screen.getByRole('region', { name: 'Test-period indicators' })
   expect(within(kpis).getAllByRole('article')).toHaveLength(5)
-  for (const label of ['Test windows', 'Flagged windows', 'RF precision', 'RF recall', 'RF onset recall']) {
+  for (const label of ['Test windows', 'Flagged windows', 'Random Forest precision', 'Random Forest recall', 'Random Forest onset recall']) {
     expect(within(kpis).getByText(label)).toBeVisible()
   }
   expect(within(kpis).getByText(String(metrics.test_windows))).toBeVisible()
   expect(screen.getByRole('heading', { name: 'Next-window risk' })).toBeVisible()
   expect(screen.getByText('Evaluation ground truth')).toBeVisible()
-  expect(screen.queryByRole('combobox', { name: /model/i })).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /Models/ })).toBeDisabled()
-  expect(screen.getByRole('button', { name: /About/ })).toBeDisabled()
+  expect(screen.getByRole('combobox', { name: 'Dashboard model' })).toBeVisible()
+  expect(screen.getByRole('link', { name: /Models/ })).toBeEnabled()
+  expect(screen.getByRole('link', { name: /About/ })).toBeEnabled()
 })
