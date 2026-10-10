@@ -234,9 +234,8 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
             return resp
             
         # Fallback
-        stage = window.get("evaluation_stage")
         top_features = window.get("top_features", [])
-        template_note = build_template_note(top_features, stage)
+        template_note = build_template_note(top_features, stage=None)
         
         template_note["model"] = None
         
