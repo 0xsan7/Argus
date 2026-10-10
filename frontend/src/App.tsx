@@ -227,7 +227,14 @@ export default function App() {
       if (requestId !== noteRequestId.current) return
       if (!res.ok) {
         const errJson = await res.json().catch(() => null)
-        if (requestId === noteRequestId.current) setNoteError(errJson?.error || `Request failed with status ${res.status}`)
+        const serverMessage = errJson && typeof errJson === 'object' && 'error' in errJson && typeof errJson.error === 'string'
+          ? errJson.error.trim()
+          : ''
+        const containsStackTrace = /Traceback \(most recent call last\):|^\s*File .+, line \d+|^\s*at\s+.+:\d+:\d+/m.test(serverMessage)
+        const readableError = !serverMessage || containsStackTrace || serverMessage.length > 240
+          ? `Could not generate analyst note (status ${res.status}). Try again.`
+          : serverMessage
+        if (requestId === noteRequestId.current) setNoteError(readableError)
         return
       }
       const json: AnalystNote = await res.json()

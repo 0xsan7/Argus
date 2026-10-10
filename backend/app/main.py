@@ -12,7 +12,7 @@ from backend.app.services.notes_cache import get_cached_note, save_cached_note
 
 LIGHT_FIELDS = {
     "id", "sequence_id", "start_ts", "end_ts", "risk", "flagged",
-    "truth_next", "evaluation_stage", "explanation_available",
+    "risk_by_model", "truth_next", "evaluation_stage", "explanation_available",
 }
 
 def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = None):

@@ -188,7 +188,7 @@ describe('Frontend Note Panel', () => {
         return Promise.resolve({
           ok: false,
           status: 503,
-          json: () => Promise.resolve({ error: 'Service temporarily unavailable' }),
+          json: () => Promise.resolve({ error: 'Traceback (most recent call last):\n  File "backend/app/main.py", line 4, in note\nRuntimeError: secret internals' }),
         })
       }
       return Promise.reject(new Error(`Unhandled URL: ${url}`))
@@ -204,7 +204,8 @@ describe('Frontend Note Panel', () => {
     const generateBtn = await screen.findByText('Generate analyst note')
     fireEvent.click(generateBtn)
 
-    await screen.findByText(/Service temporarily unavailable/)
+    await screen.findByText(/Could not generate analyst note \(status 503\)/)
+    expect(screen.queryByText(/Traceback|secret internals/)).not.toBeInTheDocument()
     expect(screen.getByText('Try again')).toBeInTheDocument()
   })
 })

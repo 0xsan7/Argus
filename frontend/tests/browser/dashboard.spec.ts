@@ -14,13 +14,22 @@ test('demo flow works at desktop and tablet widths with Ollama off', async ({ pa
   await expect(page.getByText('ILLUSTRATIVE UI FIXTURE — NOT BENCHMARK RESULTS')).toBeVisible()
   const modelSelect = page.getByRole('combobox', { name: 'Dashboard model' })
   await expect(modelSelect).toBeVisible()
-  await expect(page.locator('.recharts-line-curve')).toHaveCount(1)
-  for (const model of ['lr_current', 'lr_lag', 'oracle_persistence']) {
+  const apiData = await page.evaluate(async () => {
+    const [timelineResponse, metricsResponse] = await Promise.all([fetch('/api/timeline?split=test'), fetch('/api/metrics')])
+    return { windows: await timelineResponse.json(), metrics: await metricsResponse.json() }
+  })
+  const lineShapes: string[] = []
+  const kpis = page.getByRole('region', { name: 'Test-period indicators' })
+  for (const model of ['rf', 'lr_current', 'lr_lag', 'oracle_persistence']) {
     await modelSelect.selectOption(model)
-    await expect(page.getByText(/scores unavailable/)).toBeVisible()
+    await expect(page.locator('.recharts-line-curve')).toHaveCount(1)
+    const threshold = model === 'oracle_persistence' ? 0.5 : apiData.metrics.models.find((entry: { name: string }) => entry.name === model).threshold
+    const expectedFlags = apiData.windows.filter((window: { risk_by_model: Record<string, number> }) => window.risk_by_model[model] >= threshold).length
+    await expect(kpis.locator('.kpi').nth(1).locator('.kpi-value')).toHaveText(String(expectedFlags))
+    await expect(page.getByText(new RegExp(`${model === 'oracle_persistence' ? 'Diagnostic boundary' : 'Threshold'} ${threshold.toFixed(2)}`))).toBeVisible()
+    lineShapes.push((await page.locator('path.recharts-line-curve').getAttribute('d')) ?? '')
   }
-  await modelSelect.selectOption('rf')
-  await expect(page.locator('.recharts-line-curve')).toHaveCount(1)
+  expect(new Set(lineShapes).size).toBeGreaterThan(1)
   await expect(page.getByRole('option', { name: /non-deployable, diagnostic only/ })).toBeAttached()
 
   for (const width of [1280, 768]) {

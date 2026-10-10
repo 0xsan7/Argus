@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "fixtures"
 LIGHT_FIELDS = {
     "id", "sequence_id", "start_ts", "end_ts", "risk", "flagged",
-    "truth_next", "evaluation_stage", "explanation_available",
+    "risk_by_model", "truth_next", "evaluation_stage", "explanation_available",
 }
 
 
