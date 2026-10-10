@@ -1,0 +1,11 @@
+[project]
+name = "argus-local"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["fastapi", "uvicorn", "httpx", "jsonschema", "pandas", "numpy", "scikit-learn", "pyyaml"]
+[project.optional-dependencies]
+explain = ["shap"]
+test = ["pytest"]
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
