@@ -75,3 +75,53 @@ def test_note_endpoint_no_ground_truth_in_fallback(mock_generate, mock_cache_pat
         assert "Exploitation" not in note_str
         assert "DoS" not in note_str
 
+
+@patch("backend.app.services.gemma_client.urllib.request.urlopen")
+def test_note_endpoint_wire_level_leakage(mock_urlopen, mock_cache_path):
+    # We want to capture the request body passed to urlopen.
+    # urlopen is called with a Request object.
+    
+    original_load = json.load
+    def mocked_load(f, *args, **kwargs):
+        data = original_load(f, *args, **kwargs)
+        if isinstance(data, dict) and "windows" in data:
+            data["windows"].append({
+                "id": 888,
+                "truth_now": 1,
+                "truth_next": 1,
+                "evaluation_stage": "Exploitation",
+                "evaluation_attack_category": "DoS",
+                "attack_cat": "DoS",
+                "label": 1,
+                "top_features": [{"name": "dur", "value": 1.0}]
+            })
+        return data
+
+    with patch("json.load", side_effect=mocked_load):
+        # Even if urlopen fails, we can inspect the mock call arguments.
+        # But let's make it return a valid mock response to complete successfully.
+        from unittest.mock import MagicMock
+        mock_response = MagicMock()
+        mock_response.read.return_value = b'{"response": "{\\"threat_summary\\": \\"ok\\"}"}'
+        mock_response.__enter__.return_value = mock_response
+        mock_urlopen.return_value = mock_response
+        
+        response = client.post("/api/windows/888/note")
+        assert response.status_code == 200
+        
+        # Now verify the request body sent to Ollama
+        assert mock_urlopen.called
+        request_obj = mock_urlopen.call_args[0][0]
+        body = request_obj.data.decode("utf-8")
+        
+        forbidden_keys = [
+            "truth_now", "truth_next", 
+            "evaluation_attack_category", "evaluation_stage", 
+            "attack_cat", "label"
+        ]
+        forbidden_values = ["Exploitation", "DoS"]
+        
+        for key in forbidden_keys:
+            assert key not in body
+        for val in forbidden_values:
+            assert val not in body
