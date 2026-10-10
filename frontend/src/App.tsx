@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   ResponsiveContainer,
   LineChart,
@@ -146,6 +146,8 @@ export default function App() {
   const [note, setNote] = useState<AnalystNote | null>(null)
   const [loadingNote, setLoadingNote] = useState(false)
   const [noteError, setNoteError] = useState<string | null>(null)
+  const detailRequestId = useRef(0)
+  const noteRequestId = useRef(0)
 
   useEffect(() => {
     const onPopState = () => setPage(routePage())
@@ -183,6 +185,8 @@ export default function App() {
   const retryDashboard = () => setDashboardAttempt(attempt => attempt + 1)
 
   const inspectWindow = async (id: number) => {
+    const requestId = ++detailRequestId.current
+    noteRequestId.current += 1
     setSelectedWindowId(id)
     setLoadingWindow(true)
     setWindowError(null)
@@ -192,6 +196,7 @@ export default function App() {
     setNoteError(null)
     try {
       const res = await fetch(`/api/windows/${id}`)
+      if (requestId !== detailRequestId.current) return
       if (!res.ok) {
         if (res.status === 404) {
           setWindowError(`Window #${id} not found in test partition (evaluation timeline covers test split).`)
@@ -201,15 +206,16 @@ export default function App() {
         return
       }
       const json = await res.json()
-      setWindowDetail(json)
+      if (requestId === detailRequestId.current) setWindowDetail(json)
     } catch {
-      setWindowError('Could not load this window. Check that the Argus API is running, then try again.')
+      if (requestId === detailRequestId.current) setWindowError('Could not load this window. Check that the Argus API is running, then try again.')
     } finally {
-      setLoadingWindow(false)
+      if (requestId === detailRequestId.current) setLoadingWindow(false)
     }
   }
 
   const generateNote = async (id: number) => {
+    const requestId = ++noteRequestId.current
     setLoadingNote(true)
     setNoteError(null)
     setNote(null)
@@ -218,17 +224,18 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
+      if (requestId !== noteRequestId.current) return
       if (!res.ok) {
         const errJson = await res.json().catch(() => null)
-        setNoteError(errJson?.error || `Request failed with status ${res.status}`)
+        if (requestId === noteRequestId.current) setNoteError(errJson?.error || `Request failed with status ${res.status}`)
         return
       }
       const json: AnalystNote = await res.json()
-      setNote(json)
+      if (requestId === noteRequestId.current) setNote(json)
     } catch {
-      setNoteError('Could not generate the analyst note. Check that the local service is available, then try again.')
+      if (requestId === noteRequestId.current) setNoteError('Could not generate the analyst note. Check that the local service is available, then try again.')
     } finally {
-      setLoadingNote(false)
+      if (requestId === noteRequestId.current) setLoadingNote(false)
     }
   }
 
