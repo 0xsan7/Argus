@@ -1,1 +1,23 @@
-:root { color-scheme: dark; --bg: #101715; --sidebar: #111917; --panel: #17211d; --border: #2c3932; --text: #e6eee8; --muted: #99aba0; --mint: #9cdfb7; --amber: #e9b974; --truth: #c4b8d4; --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+:root {
+  color-scheme: dark;
+  --bg: #0a0e1a;
+  --sidebar: #070b14;
+  --panel: #0f1629;
+  --surface-alt: #111c32;
+  --border: #1e2d4a;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --accent: #3b82f6;
+  --accent-text: #60a5fa;
+  --accent-soft: #101f3b;
+  --button: #2563eb;
+  --cyan: #06b6d4;
+  --success: #10b981;
+  --amber: #fb923c;
+  --danger: #ef4444;
+  --danger-text: #fca5a5;
+  --danger-bg: #241321;
+  --danger-border: #713144;
+  --truth: #94a3b8;
+  --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}

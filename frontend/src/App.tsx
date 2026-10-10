@@ -29,7 +29,7 @@ function GroundTruthBands({ intervals }: { intervals: TruthInterval[] }) {
     const right = Math.min(plot.x + plot.width, end)
     return right > left ? `M${left},${plot.y}h${right - left}v${plot.height}h${left - right}Z` : ''
   }).join(' ')
-  return <path className="ground-truth-bands" d={d} fill="#615b77" fillOpacity={0.25} pointerEvents="none" />
+  return <path className="ground-truth-bands" d={d} fill="var(--danger)" fillOpacity={0.08} pointerEvents="none" />
 }
 
 const modelNames = {
@@ -116,11 +116,11 @@ function ModelsPage({ metrics, loading, error, onRetry }: { metrics: Metrics | n
         <div className="comparison-chart" role="img" aria-label={`${selectedLabel} model comparison chart`}>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={chartData} margin={{ top: 8, right: 18, bottom: 8, left: 5 }}>
-              <CartesianGrid stroke="#2c3932" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" stroke="#5c6b63" tick={{ fill: '#c1cec8', fontSize: 11 }} />
-              <YAxis stroke="#5c6b63" tick={{ fill: '#99aba0', fontSize: 10 }} />
-              <Tooltip formatter={value => metricText(Number(value ?? 0), selectedMetric)} contentStyle={{ background: '#17211d', border: '1px solid #2c3932' }} />
-              <Bar dataKey="value" name={selectedLabel} fill="var(--mint)" radius={[3, 3, 0, 0]} />
+              <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" stroke="var(--border)" tick={{ fill: 'var(--muted)', fontSize: 11 }} />
+              <YAxis stroke="var(--border)" tick={{ fill: 'var(--muted)', fontSize: 10 }} />
+              <Tooltip formatter={value => metricText(Number(value ?? 0), selectedMetric)} contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border)' }} />
+              <Bar dataKey="value" name={selectedLabel} fill="var(--accent)" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -406,7 +406,7 @@ export default function App() {
 
                 <div className="chart-legend">
                   <span><i className="legend-line" />Risk score</span>
-                  <span><i className="legend-point" style={{ background: '#f87171' }} />Flagged window</span>
+                  <span><i className="legend-point" style={{ background: '#ef4444' }} />Flagged window</span>
                   <span><i className="legend-threshold" />{selectedModel === 'oracle_persistence' ? 'Diagnostic boundary' : 'Threshold'} {selectedThreshold?.toFixed(2) ?? 'unavailable'}</span>
                   <span className="evaluation-legend">
                     <i className="legend-truth" />Evaluation ground truth
@@ -426,14 +426,14 @@ export default function App() {
                         type="number"
                         domain={['dataMin', chartPoints.at(-1)?.targetEnd ?? 'dataMax']}
                         tickFormatter={value => new Date(Number(value) * 1000).toISOString().slice(11, 19)}
-                        stroke="#5c6b63"
-                        tick={{ fill: '#99aba0', fontSize: 10 }}
-                        label={{ value: 'Target interval start · UTC', position: 'insideBottom', offset: -15, fill: '#99aba0', fontSize: 10 }}
+                        stroke="var(--border)"
+                        tick={{ fill: 'var(--muted)', fontSize: 10 }}
+                        label={{ value: 'Target interval start · UTC', position: 'insideBottom', offset: -15, fill: 'var(--muted)', fontSize: 10 }}
                       />
                       <YAxis
                         domain={[0, 1]}
-                        stroke="#5c6b63"
-                        tick={{ fill: '#99aba0', fontSize: 10 }}
+                        stroke="var(--border)"
+                        tick={{ fill: 'var(--muted)', fontSize: 10 }}
                       />
                       <Tooltip
                         content={({ active, payload }) => {
@@ -441,8 +441,8 @@ export default function App() {
                           const pt = payload[0].payload
                           if (pt.gap || pt.risk === null) return null
                           return (
-                            <div style={{ background: '#17211d', border: '1px solid #2c3932', padding: '8px 12px', borderRadius: 4, fontSize: 11 }}>
-                              <div style={{ color: '#9cdfb7', fontWeight: 600 }}>Window #{pt.id}</div>
+                            <div style={{ background: 'var(--panel)', border: '1px solid var(--border)', padding: '8px 12px', borderRadius: 4, fontSize: 11 }}>
+                              <div style={{ color: 'var(--accent-text)', fontWeight: 600 }}>Window #{pt.id}</div>
                               <div>Risk: {pt.risk?.toFixed(3)}</div>
                               <div>Flagged: {pt.flagged ? 'Yes' : 'No'}</div>
                               <div>Target start: {pt.targetStart}s</div>
@@ -453,14 +453,14 @@ export default function App() {
                       <GroundTruthBands intervals={truthIntervals} />
                       <ReferenceLine
                         y={selectedThreshold ?? data.meta.default_threshold}
-                        stroke="var(--amber)"
+                        stroke="var(--muted)"
                         strokeDasharray="3 3"
                       />
                       <Line
                         type="monotone"
                         dataKey="risk"
                         connectNulls={false}
-                        stroke="var(--mint)"
+                        stroke="var(--accent)"
                         strokeWidth={2}
                         isAnimationActive={false}
                         dot={(props: { cx?: number; cy?: number; payload?: { id: number; flagged?: boolean } }) => {
@@ -472,7 +472,7 @@ export default function App() {
                               cx={props.cx}
                               cy={props.cy}
                               r={chartWindows.length > 1000 ? 1.5 : 4}
-                              fill="#f87171"
+                              fill="#ef4444"
                               className="flagged-point"
                               style={{ cursor: 'pointer' }}
                               onClick={() => inspectWindow(id)}
@@ -576,7 +576,7 @@ export default function App() {
                 Loading window #{selectedWindowId} details…
               </div>
             ) : windowError ? (
-              <div style={{ padding: '20px', background: '#241a1a', border: '1px solid #5a3030', borderRadius: 6, color: '#f5a6a6' }}>
+              <div style={{ padding: '20px', background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', borderRadius: 6, color: 'var(--danger-text)' }}>
                 <strong style={{ display: 'block', marginBottom: 6 }}>Notice</strong>
                 {windowError}
                 <button className="inspect-btn" style={{ display: 'block', marginTop: 12 }} onClick={() => inspectWindow(selectedWindowId)}>
@@ -590,7 +590,7 @@ export default function App() {
                   <div className="grid-3">
                     <div className="meta-card">
                       <div className="meta-card-label">RISK SCORE ({modelNames[selectedModel]})</div>
-                      <div className="meta-card-val" style={{ color: selectedDetailFlagged ? 'var(--amber)' : 'var(--mint)' }}>
+                      <div className="meta-card-val" style={{ color: selectedDetailFlagged ? 'var(--amber)' : 'var(--success)' }}>
                         {selectedDetailRisk === undefined ? 'Unavailable for selected model' : `${selectedDetailRisk.toFixed(3)} ${selectedDetailFlagged ? '· FLAGGED' : ''}`}
                       </div>
                     </div>
@@ -638,8 +638,8 @@ export default function App() {
                         className="note-generate-btn"
                         onClick={() => generateNote(windowDetail.id)}
                         style={{
-                          background: 'var(--amber)',
-                          color: '#000',
+                          background: 'var(--button)',
+                          color: 'var(--text)',
                           border: 'none',
                           padding: '6px 14px',
                           borderRadius: 4,
@@ -654,13 +654,13 @@ export default function App() {
                   </div>
 
                   {loadingNote && (
-                    <div className="note-loading" style={{ padding: '20px', textAlign: 'center', color: 'var(--muted)', background: '#111a16', borderRadius: 4, border: '1px solid var(--border)' }}>
+                    <div className="note-loading" style={{ padding: '20px', textAlign: 'center', color: 'var(--muted)', background: 'var(--panel)', borderRadius: 4, border: '1px solid var(--border)' }}>
                       Generating analyst note…
                     </div>
                   )}
 
                   {noteError && (
-                    <div className="note-error" style={{ padding: '14px', background: '#241a1a', border: '1px solid #5a3030', borderRadius: 4, color: '#f5a6a6', fontSize: 12 }}>
+                    <div className="note-error" style={{ padding: '14px', background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', borderRadius: 4, color: 'var(--danger-text)', fontSize: 12 }}>
                       <strong style={{ display: 'block', marginBottom: 4 }}>Error generating note</strong>
                       <div>{noteError}</div>
                       <button
@@ -668,8 +668,8 @@ export default function App() {
                         style={{
                           marginTop: 10,
                           background: 'transparent',
-                          border: '1px solid #5a3030',
-                          color: '#f5a6a6',
+                          border: '1px solid var(--danger-border)',
+                          color: 'var(--danger-text)',
                           padding: '4px 10px',
                           borderRadius: 4,
                           cursor: 'pointer',
@@ -682,7 +682,7 @@ export default function App() {
                   )}
 
                   {note && (
-                    <div className="note-panel" style={{ background: '#121a17', border: '1px solid var(--border)', borderRadius: 4, padding: '16px' }}>
+                    <div className="note-panel" style={{ background: 'var(--panel)', border: '1px solid var(--border)', borderLeft: '3px solid var(--cyan)', borderRadius: 4, padding: '16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                         <span
                           className="note-source-badge"
@@ -692,9 +692,9 @@ export default function App() {
                             fontSize: 11,
                             fontWeight: 600,
                             fontFamily: 'var(--mono)',
-                            background: note.source === 'gemma' ? '#183626' : '#2b2316',
-                            color: note.source === 'gemma' ? 'var(--mint)' : 'var(--amber)',
-                            border: `1px solid ${note.source === 'gemma' ? '#275239' : '#4f3b20'}`
+                            background: note.source === 'gemma' ? 'var(--accent-soft)' : 'var(--surface-alt)',
+                            color: note.source === 'gemma' ? 'var(--accent-text)' : 'var(--muted)',
+                            border: `1px solid ${note.source === 'gemma' ? 'var(--accent)' : 'var(--border)'}`
                           }}
                         >
                           {note.source === 'gemma' ? 'Gemma' : 'Template fallback'}
@@ -710,7 +710,7 @@ export default function App() {
                         <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
                           Threat Summary
                         </div>
-                        <div style={{ fontSize: 13, color: '#e6edf3', lineHeight: 1.5 }}>
+                        <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
                           {note.threat_summary}
                         </div>
                       </div>
@@ -719,7 +719,7 @@ export default function App() {
                         <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
                           Why Suspicious
                         </div>
-                        <div style={{ fontSize: 13, color: '#e6edf3', lineHeight: 1.5 }}>
+                        <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
                           {note.why_suspicious}
                         </div>
                       </div>
@@ -728,7 +728,7 @@ export default function App() {
                         <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
                           Suggested Checks
                         </div>
-                        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: '#e6edf3', lineHeight: 1.5 }}>
+                        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
                           {note.suggested_checks?.map((check, idx) => (
                             <li key={idx} style={{ marginBottom: 4 }}>{check}</li>
                           ))}
@@ -765,15 +765,15 @@ export default function App() {
                     GROUND TRUTH (EVALUATION ONLY)
                   </div>
                   <div className="grid-2">
-                    <div className="meta-card" style={{ borderColor: '#483d5a' }}>
+                    <div className="meta-card" style={{ borderColor: 'var(--border)' }}>
                       <div className="meta-card-label">CURRENT WINDOW TRUTH</div>
-                      <div className="meta-card-val" style={{ color: windowDetail.truth_now ? 'var(--amber)' : 'var(--mint)' }}>
+                      <div className="meta-card-val" style={{ color: windowDetail.truth_now ? 'var(--amber)' : 'var(--success)' }}>
                         {windowDetail.truth_now ? 'MALICIOUS (1)' : 'BENIGN (0)'}
                       </div>
                     </div>
-                    <div className="meta-card" style={{ borderColor: '#483d5a' }}>
+                    <div className="meta-card" style={{ borderColor: 'var(--border)' }}>
                       <div className="meta-card-label">NEXT WINDOW TRUTH (TARGET)</div>
-                      <div className="meta-card-val" style={{ color: windowDetail.truth_next ? 'var(--amber)' : 'var(--mint)' }}>
+                      <div className="meta-card-val" style={{ color: windowDetail.truth_next ? 'var(--amber)' : 'var(--success)' }}>
                         {windowDetail.truth_next ? 'MALICIOUS (1)' : 'BENIGN (0)'}
                       </div>
                     </div>

@@ -137,7 +137,7 @@ test('full real timeline renders without thousands of reference-area registratio
   expect((path.match(/M/g) ?? []).length).toBeGreaterThan(1)
   expect(await page.locator('.chart-container').evaluate(element => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(300)
   await expect(page.locator('.flagged-point')).toHaveCount(timeline.windows.filter((window: { risk: number }) => window.risk >= timeline.meta.default_threshold).length)
-  await expect(page.locator('.flagged-point').first()).toHaveAttribute('fill', '#f87171')
+  await expect(page.locator('.flagged-point').first()).toHaveAttribute('fill', '#ef4444')
   await expect(page.locator('.ground-truth-bands')).toHaveCount(1)
   await expect(page.locator('.recharts-reference-area')).toHaveCount(0)
   expect(errors).toEqual([])
