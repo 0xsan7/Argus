@@ -1,8 +1,9 @@
 import pytest
+import re
 from backend.app.services.note_prompt import build_prompt
 
 def test_build_prompt_leakage_guard():
-    # A fake window containing both allowed and forbidden fields
+    # Window containing forbidden fields
     window = {
         "id": 123,
         "start_ts": "2026-01-01T12:00:00Z",
@@ -10,43 +11,64 @@ def test_build_prompt_leakage_guard():
         "split": "test",
         "risk": 0.85,
         "flagged": True,
-        "evaluation_attack_category": "DoS",
-        "top_features": [{"name": "dur", "value": 0.5}],
-        "evaluation_stage": "Exploitation",
-        "truth_now": 1,
+        "evaluation_attack_category": "Fuzzers",
+        "evaluation_stage": "Reconnaissance",
+        "label": 1,
+        "attack_cat": "Fuzzers",
+        "truth_now": 0,
         "truth_next": 1,
         "sequence_id": "seq_1",
-        "counts": {"packets": 100},
-        "risk_by_model": {"rf": 0.85}
+        "counts": {"flows": 50, "packets": 100},
+        "risk_by_model": {"rf": 0.85},
+        "top_features": [
+            {"name": "dur", "value": 0.5, "shap": 0.12},
+            {"name": "sbytes", "value": 1024, "shap": 0.34}
+        ]
     }
     
     prompt = build_prompt(window)
-    
     assert isinstance(prompt, str)
     
-    # Check that allowed fields are in the prompt
-    assert "123" in prompt
+    # Assert (a): window containing forbidden fields produces a prompt with none of them
+    forbidden_terms = [
+        "truth_now",
+        "truth_next",
+        "evaluation_attack_category",
+        "evaluation_stage",
+        "label",
+        "attack_cat",
+        "Fuzzers",
+        "Reconnaissance",
+        "sequence_id",
+        "seq_1",
+        "risk_by_model",
+        "shap"
+    ]
+    for term in forbidden_terms:
+        assert term not in prompt, f"Forbidden term '{term}' leaked into prompt!"
+        
+    # Allowed fields are present
+    assert "0.85" in prompt
     assert "2026-01-01T12:00:00Z" in prompt
-    assert "DoS" in prompt
-    
-    # Check that forbidden fields are completely excluded
-    assert "truth_now" not in prompt
-    assert "truth_next" not in prompt
-    assert "sequence_id" not in prompt
-    assert "seq_1" not in prompt
-    assert "counts" not in prompt
-    assert "packets" not in prompt
-    assert "risk_by_model" not in prompt
+    assert "2026-01-01T12:00:01Z" in prompt
+    assert "flows" in prompt
+    assert "dur" in prompt
+    assert "sbytes" in prompt
 
-def test_build_prompt_missing_fields():
-    # Should work even if some allowed fields are missing
+def test_build_prompt_requests_only_four_keys():
+    # Assert (b): the prompt requests only the four keys
     window = {
-        "id": 456,
         "risk": 0.9,
-        "truth_now": 0 # This should be stripped
+        "top_features": [{"name": "dur", "value": 1.2}],
+        "counts": {"flows": 10},
+        "start_ts": 100.0,
+        "end_ts": 101.0
     }
-    
     prompt = build_prompt(window)
-    assert "456" in prompt
-    assert "0.9" in prompt
-    assert "truth_now" not in prompt
+    
+    required_keys = ["threat_summary", "why_suspicious", "suggested_checks", "caveat"]
+    for key in required_keys:
+        assert f'"{key}"' in prompt
+        
+    # Check that it asks ONLY for these keys
+    assert "exactly these four keys" in prompt
