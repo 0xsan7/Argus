@@ -9,7 +9,7 @@ import {
   ReferenceLine,
   ReferenceArea,
 } from 'recharts'
-import type { DashboardData, Health, Meta, Metrics, TimelineWindow, WindowDetail } from './types'
+import type { AnalystNote, DashboardData, Health, Meta, Metrics, TimelineWindow, WindowDetail } from './types'
 import { chartSeries } from './timeline'
 
 const modelNames = {
@@ -28,6 +28,9 @@ export default function App() {
   const [windowError, setWindowError] = useState<string | null>(null)
   const [loadingWindow, setLoadingWindow] = useState(false)
   const [inspectInputId, setInspectInputId] = useState('')
+  const [note, setNote] = useState<AnalystNote | null>(null)
+  const [loadingNote, setLoadingNote] = useState(false)
+  const [noteError, setNoteError] = useState<string | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -51,6 +54,9 @@ export default function App() {
     setLoadingWindow(true)
     setWindowError(null)
     setWindowDetail(null)
+    setNote(null)
+    setLoadingNote(false)
+    setNoteError(null)
     try {
       const res = await fetch(`/api/windows/${id}`)
       if (!res.ok) {
@@ -67,6 +73,29 @@ export default function App() {
       setWindowError(err instanceof Error ? err.message : 'Unknown network error')
     } finally {
       setLoadingWindow(false)
+    }
+  }
+
+  const generateNote = async (id: number) => {
+    setLoadingNote(true)
+    setNoteError(null)
+    setNote(null)
+    try {
+      const res = await fetch(`/api/windows/${id}/note`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null)
+        setNoteError(errJson?.error || `Request failed with status ${res.status}`)
+        return
+      }
+      const json: AnalystNote = await res.json()
+      setNote(json)
+    } catch (err: unknown) {
+      setNoteError(err instanceof Error ? err.message : 'Failed to connect to the analyst note service')
+    } finally {
+      setLoadingNote(false)
     }
   }
 
@@ -401,6 +430,118 @@ export default function App() {
                           </span>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="window-section">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <div className="window-section-title" style={{ margin: 0 }}>ANALYST NOTE</div>
+                    {!loadingNote && (
+                      <button
+                        className="note-generate-btn"
+                        onClick={() => generateNote(windowDetail.id)}
+                        style={{
+                          background: 'var(--amber)',
+                          color: '#000',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: 4,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {note ? 'Regenerate analyst note' : 'Generate analyst note'}
+                      </button>
+                    )}
+                  </div>
+
+                  {loadingNote && (
+                    <div className="note-loading" style={{ padding: '20px', textAlign: 'center', color: 'var(--muted)', background: '#111a16', borderRadius: 4, border: '1px solid var(--border)' }}>
+                      Generating analyst note…
+                    </div>
+                  )}
+
+                  {noteError && (
+                    <div className="note-error" style={{ padding: '14px', background: '#241a1a', border: '1px solid #5a3030', borderRadius: 4, color: '#f5a6a6', fontSize: 12 }}>
+                      <strong style={{ display: 'block', marginBottom: 4 }}>Error generating note</strong>
+                      <div>{noteError}</div>
+                      <button
+                        onClick={() => generateNote(windowDetail.id)}
+                        style={{
+                          marginTop: 10,
+                          background: 'transparent',
+                          border: '1px solid #5a3030',
+                          color: '#f5a6a6',
+                          padding: '4px 10px',
+                          borderRadius: 4,
+                          cursor: 'pointer',
+                          fontSize: 11
+                        }}
+                      >
+                        Try again
+                      </button>
+                    </div>
+                  )}
+
+                  {note && (
+                    <div className="note-panel" style={{ background: '#121a17', border: '1px solid var(--border)', borderRadius: 4, padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <span
+                          className="note-source-badge"
+                          style={{
+                            padding: '3px 9px',
+                            borderRadius: 4,
+                            fontSize: 11,
+                            fontWeight: 600,
+                            fontFamily: 'var(--mono)',
+                            background: note.source === 'gemma' ? '#183626' : '#2b2316',
+                            color: note.source === 'gemma' ? 'var(--mint)' : 'var(--amber)',
+                            border: `1px solid ${note.source === 'gemma' ? '#275239' : '#4f3b20'}`
+                          }}
+                        >
+                          {note.source === 'gemma' ? 'Gemma' : 'Template fallback'}
+                        </span>
+                        {note.model && (
+                          <span style={{ fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--muted)' }}>
+                            {note.model}
+                          </span>
+                        )}
+                      </div>
+
+                      <div style={{ marginBottom: 12 }}>
+                        <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
+                          Threat Summary
+                        </div>
+                        <div style={{ fontSize: 13, color: '#e6edf3', lineHeight: 1.5 }}>
+                          {note.threat_summary}
+                        </div>
+                      </div>
+
+                      <div style={{ marginBottom: 12 }}>
+                        <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
+                          Why Suspicious
+                        </div>
+                        <div style={{ fontSize: 13, color: '#e6edf3', lineHeight: 1.5 }}>
+                          {note.why_suspicious}
+                        </div>
+                      </div>
+
+                      <div style={{ marginBottom: 12 }}>
+                        <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
+                          Suggested Checks
+                        </div>
+                        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: '#e6edf3', lineHeight: 1.5 }}>
+                          {note.suggested_checks?.map((check, idx) => (
+                            <li key={idx} style={{ marginBottom: 4 }}>{check}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic', borderTop: '1px solid var(--border)', paddingTop: 10, marginTop: 10 }}>
+                        {note.caveat}
+                      </div>
                     </div>
                   )}
                 </div>

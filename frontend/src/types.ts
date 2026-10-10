@@ -51,3 +51,13 @@ export interface WindowDetail {
     unique_dst_ports: number
   }
 }
+
+export interface AnalystNote {
+  window_id: number
+  source: 'gemma' | 'template'
+  model: string | null
+  threat_summary: string
+  why_suspicious: string
+  suggested_checks: string[]
+  caveat: string
+}
