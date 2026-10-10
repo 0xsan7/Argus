@@ -1,0 +1,2097 @@
+{
+  "config": {
+    "alignment": "floor(first observed timestamp / 10) * 10 per sequence",
+    "availability": "Ltime",
+    "lookback_windows": 5,
+    "max_gap_windows": 60,
+    "min_malicious_flows": 1,
+    "split_assignment": "chronological eligible target timestamps; floor(0.7*N), floor(0.8*N)",
+    "split_fractions": [
+      0.7,
+      0.1,
+      0.2
+    ],
+    "truth_time": "Stime",
+    "window_seconds": 1
+  },
+  "dataset_dir": "/Users/santiagojerald/argus/data/raw",
+  "events": {},
+  "fallback_local_candidates": [],
+  "feature_definitions": [
+    {
+      "Description": "Source IP address",
+      "Name": "srcip",
+      "No.": 1,
+      "Type ": "nominal"
+    },
+    {
+      "Description": "Source port number",
+      "Name": "sport",
+      "No.": 2,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Destination IP address",
+      "Name": "dstip",
+      "No.": 3,
+      "Type ": "nominal"
+    },
+    {
+      "Description": "Destination port number",
+      "Name": "dsport",
+      "No.": 4,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Transaction protocol",
+      "Name": "proto",
+      "No.": 5,
+      "Type ": "nominal"
+    },
+    {
+      "Description": "Indicates to the state and its dependent protocol, e.g. ACC, CLO, CON, ECO, ECR, FIN, INT, MAS, PAR, REQ, RST, TST, TXD, URH, URN, and (-) (if not used state)",
+      "Name": "state",
+      "No.": 6,
+      "Type ": "nominal"
+    },
+    {
+      "Description": "Record total duration",
+      "Name": "dur",
+      "No.": 7,
+      "Type ": "Float"
+    },
+    {
+      "Description": "Source to destination transaction bytes ",
+      "Name": "sbytes",
+      "No.": 8,
+      "Type ": "Integer"
+    },
+    {
+      "Description": "Destination to source transaction bytes",
+      "Name": "dbytes",
+      "No.": 9,
+      "Type ": "Integer"
+    },
+    {
+      "Description": "Source to destination time to live value ",
+      "Name": "sttl",
+      "No.": 10,
+      "Type ": "Integer"
+    },
+    {
+      "Description": "Destination to source time to live value",
+      "Name": "dttl",
+      "No.": 11,
+      "Type ": "Integer"
+    },
+    {
+      "Description": "Source packets retransmitted or dropped ",
+      "Name": "sloss",
+      "No.": 12,
+      "Type ": "Integer"
+    },
+    {
+      "Description": "Destination packets retransmitted or dropped",
+      "Name": "dloss",
+      "No.": 13,
+      "Type ": "Integer"
+    },
+    {
+      "Description": "http, ftp, smtp, ssh, dns, ftp-data ,irc  and (-) if not much used service",
+      "Name": "service",
+      "No.": 14,
+      "Type ": "nominal"
+    },
+    {
+      "Description": "Source bits per second",
+      "Name": "Sload",
+      "No.": 15,
+      "Type ": "Float"
+    },
+    {
+      "Description": "Destination bits per second",
+      "Name": "Dload",
+      "No.": 16,
+      "Type ": "Float"
+    },
+    {
+      "Description": "Source to destination packet count ",
+      "Name": "Spkts",
+      "No.": 17,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Destination to source packet count",
+      "Name": "Dpkts",
+      "No.": 18,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Source TCP window advertisement value",
+      "Name": "swin",
+      "No.": 19,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Destination TCP window advertisement value",
+      "Name": "dwin",
+      "No.": 20,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Source TCP base sequence number",
+      "Name": "stcpb",
+      "No.": 21,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Destination TCP base sequence number",
+      "Name": "dtcpb",
+      "No.": 22,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Mean of the ?ow packet size transmitted by the src ",
+      "Name": "smeansz",
+      "No.": 23,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Mean of the ?ow packet size transmitted by the dst ",
+      "Name": "dmeansz",
+      "No.": 24,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Represents the pipelined depth into the connection of http request/response transaction",
+      "Name": "trans_depth",
+      "No.": 25,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Actual uncompressed content size of the data transferred from the server\u2019s http service.",
+      "Name": "res_bdy_len",
+      "No.": 26,
+      "Type ": "integer"
+    },
+    {
+      "Description": "Source jitter (mSec)",
+      "Name": "Sjit",
+      "No.": 27,
+      "Type ": "Float"
+    },
+    {
+      "Description": "Destination jitter (mSec)",
+      "Name": "Djit",
+      "No.": 28,
+      "Type ": "Float"
+    },
+    {
+      "Description": "record start time",
+      "Name": "Stime",
+      "No.": 29,
+      "Type ": "Timestamp"
+    },
+    {
+      "Description": "record last time",
+      "Name": "Ltime",
+      "No.": 30,
+      "Type ": "Timestamp"
+    },
+    {
+      "Description": "Source interpacket arrival time (mSec)",
+      "Name": "Sintpkt",
+      "No.": 31,
+      "Type ": "Float"
+    },
+    {
+      "Description": "Destination interpacket arrival time (mSec)",
+      "Name": "Dintpkt",
+      "No.": 32,
+      "Type ": "Float"
+    },
+    {
+      "Description": "TCP connection setup round-trip time, the sum of \u2019synack\u2019 and \u2019ackdat\u2019.",
+      "Name": "tcprtt",
+      "No.": 33,
+      "Type ": "Float"
+    },
+    {
+      "Description": "TCP connection setup time, the time between the SYN and the SYN_ACK packets.",
+      "Name": "synack",
+      "No.": 34,
+      "Type ": "Float"
+    },
+    {
+      "Description": "TCP connection setup time, the time between the SYN_ACK and the ACK packets.",
+      "Name": "ackdat",
+      "No.": 35,
+      "Type ": "Float"
+    },
+    {
+      "Description": "If source (1) and destination (3)IP addresses equal and port numbers (2)(4)  equal then, this variable takes value 1 else 0",
+      "Name": "is_sm_ips_ports",
+      "No.": 36,
+      "Type ": "Binary"
+    },
+    {
+      "Description": "No. for each state (6) according to specific range of values for source/destination time to live (10) (11).",
+      "Name": "ct_state_ttl",
+      "No.": 37,
+      "Type ": "Integer"
+    },
+    {
+      "Description": "No. of flows that has methods such as Get and Post in http service.",
+      "Name": "ct_flw_http_mthd",
+      "No.": 38,
+      "Type ": "Integer"
+    },
+    {
+      "Description": "If the ftp session is accessed by user and password then 1 else 0. ",
+      "Name": "is_ftp_login",
+      "No.": 39,
+      "Type ": "Binary"
+    },
+    {
+      "Description": "No of flows that has a command in ftp session.",
+      "Name": "ct_ftp_cmd",
+      "No.": 40,
+      "Type ": "integer"
+    },
+    {
+      "Description": "No. of connections that contain the same service (14) and source address (1) in 100 connections according to the last time (26).",
+      "Name": "ct_srv_src",
+      "No.": 41,
+      "Type ": "integer"
+    },
+    {
+      "Description": "No. of connections that contain the same service (14) and destination address (3) in 100 connections according to the last time (26).",
+      "Name": "ct_srv_dst",
+      "No.": 42,
+      "Type ": "integer"
+    },
+    {
+      "Description": "No. of connections of the same destination address (3) in 100 connections according to the last time (26).",
+      "Name": "ct_dst_ltm",
+      "No.": 43,
+      "Type ": "integer"
+    },
+    {
+      "Description": "No. of connections of the same source address (1) in 100 connections according to the last time (26).",
+      "Name": "ct_src_ ltm",
+      "No.": 44,
+      "Type ": "integer"
+    },
+    {
+      "Description": "No of connections of the same source address (1) and the destination port (4) in 100 connections according to the last time (26).",
+      "Name": "ct_src_dport_ltm",
+      "No.": 45,
+      "Type ": "integer"
+    },
+    {
+      "Description": "No of connections of the same destination address (3) and the source port (2) in 100 connections according to the last time (26).",
+      "Name": "ct_dst_sport_ltm",
+      "No.": 46,
+      "Type ": "integer"
+    },
+    {
+      "Description": "No of connections of the same source (1) and the destination (3) address in in 100 connections according to the last time (26).",
+      "Name": "ct_dst_src_ltm",
+      "No.": 47,
+      "Type ": "integer"
+    },
+    {
+      "Description": "The name of each attack category. In this data set , nine categories e.g. Fuzzers, Analysis, Backdoors, DoS Exploits, Generic, Reconnaissance, Shellcode and Worms",
+      "Name": "attack_cat",
+      "No.": 48,
+      "Type ": "nominal"
+    },
+    {
+      "Description": "0 for normal and 1 for attack records",
+      "Name": "Label",
+      "No.": 49,
+      "Type ": "binary"
+    }
+  ],
+  "file_boundary_checks": [
+    {
+      "end_timestamp_difference_seconds": 0,
+      "exact_boundary_row_duplicate": true,
+      "left": "UNSW-NB15_1.csv",
+      "right": "UNSW-NB15_2.csv",
+      "start_range_overlap_seconds": 47
+    },
+    {
+      "end_timestamp_difference_seconds": 0,
+      "exact_boundary_row_duplicate": true,
+      "left": "UNSW-NB15_2.csv",
+      "right": "UNSW-NB15_3.csv",
+      "start_range_overlap_seconds": 30
+    },
+    {
+      "end_timestamp_difference_seconds": 0,
+      "exact_boundary_row_duplicate": true,
+      "left": "UNSW-NB15_3.csv",
+      "right": "UNSW-NB15_4.csv",
+      "start_range_overlap_seconds": 25
+    }
+  ],
+  "gate": {
+    "blockers": [
+      "No local source attribution/license/terms supplied"
+    ],
+    "next_action": "fixture_mode_no_training",
+    "selected_primary": null,
+    "status": "rejected"
+  },
+  "inspection_version": 1,
+  "inventory": [
+    {
+      "path": "/Users/santiagojerald/argus/data/raw/NUSW-NB15_features.csv",
+      "sha256": "c55f19cceebb6360dc50f44f8a5f246ccefbcf8a6c604ac1ad46e643869cafce",
+      "size_bytes": 4044
+    },
+    {
+      "path": "/Users/santiagojerald/argus/data/raw/UNSW-NB15_1.csv",
+      "sha256": "7d851bbeabd27894ce39c8e78835c73341fc946652fb7743b9eff193b55eb511",
+      "size_bytes": 168979718
+    },
+    {
+      "path": "/Users/santiagojerald/argus/data/raw/UNSW-NB15_2.csv",
+      "sha256": "6130ad02873cc6069ae695cf2844f2e8c2e9a9a1b7532dd82ab8f202757cacf8",
+      "size_bytes": 165221021
+    },
+    {
+      "path": "/Users/santiagojerald/argus/data/raw/UNSW-NB15_3.csv",
+      "sha256": "ae990a96c3dfcd425ce2801aadb1727a34d5e0ae6d8215dbcdae60dedfaef640",
+      "size_bytes": 154588103
+    },
+    {
+      "path": "/Users/santiagojerald/argus/data/raw/UNSW-NB15_4.csv",
+      "sha256": "cdf563692d51d405541dd659ddcdad9fa01f001f05fe9fc4b67f00ca12fbc96a",
+      "size_bytes": 97588754
+    }
+  ],
+  "local_provenance": {
+    "candidates": [],
+    "source": "user-provided local directory; original acquisition URL and citation absent/unverified",
+    "terms_status": "unresolved"
+  },
+  "raw_files": [
+    {
+      "attack_category_counts_raw": {
+        " Fuzzers": 5051,
+        "<empty>": 677786,
+        "Analysis": 526,
+        "Backdoors": 534,
+        "DoS": 1167,
+        "Exploits": 5409,
+        "Generic": 7522,
+        "Reconnaissance": 1759,
+        "Shellcode": 223,
+        "Worms": 24
+      },
+      "category_label_conflicts": 0,
+      "columns": [
+        {
+          "missing": 0,
+          "name": "srcip",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sport",
+          "observed_chunk_dtypes": [
+            "int64",
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dstip",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dsport",
+          "observed_chunk_dtypes": [
+            "int64",
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "proto",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "state",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dur",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sbytes",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dbytes",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sloss",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dloss",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "service",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sload",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dload",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Spkts",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dpkts",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "swin",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dwin",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "stcpb",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dtcpb",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "smeansz",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dmeansz",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "trans_depth",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "res_bdy_len",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sjit",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Djit",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Stime",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Ltime",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sintpkt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dintpkt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "tcprtt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "synack",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ackdat",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "is_sm_ips_ports",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_state_ttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_flw_http_mthd",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "is_ftp_login",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_ftp_cmd",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_srv_src",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_srv_dst",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_src_ ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_src_dport_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_sport_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_src_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 677786,
+          "name": "attack_cat",
+          "observed_chunk_dtypes": [
+            "float64",
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Label",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        }
+      ],
+      "duration_discrepancy_gt_one_second": 2442,
+      "end_backward_steps": 0,
+      "end_before_start": 0,
+      "first_end_ts": 1421927414,
+      "first_start_ts": 1421927414,
+      "header": false,
+      "label_counts": {
+        "0": 677786,
+        "1": 22215
+      },
+      "last_end_ts": 1421955842,
+      "last_start_ts": 1421955842,
+      "max_abs_duration_discrepancy_seconds": 8895.998953,
+      "max_duration": 8786.637695,
+      "max_end_ts": 1421955842,
+      "max_start_ts": 1421955842,
+      "min_end_ts": 1421927414,
+      "min_start_ts": 1421927377,
+      "path": "/Users/santiagojerald/argus/data/raw/UNSW-NB15_1.csv",
+      "port_nonnumeric_nonmissing": {
+        "dsport": 63,
+        "sport": 8
+      },
+      "rows": 700001,
+      "start_backward_steps": 107672,
+      "utf8_bom": true
+    },
+    {
+      "attack_category_counts_raw": {
+        " Fuzzers ": 4668,
+        " Reconnaissance ": 3116,
+        " Shellcode ": 324,
+        "<empty>": 647252,
+        "Analysis": 608,
+        "Backdoor": 370,
+        "DoS": 4637,
+        "Exploits": 11103,
+        "Generic": 27883,
+        "Worms": 40
+      },
+      "category_label_conflicts": 0,
+      "columns": [
+        {
+          "missing": 0,
+          "name": "srcip",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sport",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dstip",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dsport",
+          "observed_chunk_dtypes": [
+            "int64",
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "proto",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "state",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dur",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sbytes",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dbytes",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sloss",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dloss",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "service",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sload",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dload",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Spkts",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dpkts",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "swin",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dwin",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "stcpb",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dtcpb",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "smeansz",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dmeansz",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "trans_depth",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "res_bdy_len",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sjit",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Djit",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Stime",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Ltime",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sintpkt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dintpkt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "tcprtt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "synack",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ackdat",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "is_sm_ips_ports",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_state_ttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 285256,
+          "name": "ct_flw_http_mthd",
+          "observed_chunk_dtypes": [
+            "float64",
+            "int64"
+          ]
+        },
+        {
+          "missing": 307038,
+          "name": "is_ftp_login",
+          "observed_chunk_dtypes": [
+            "float64",
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_ftp_cmd",
+          "observed_chunk_dtypes": [
+            "int64",
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_srv_src",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_srv_dst",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_src_ ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_src_dport_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_sport_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_src_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 647252,
+          "name": "attack_cat",
+          "observed_chunk_dtypes": [
+            "float64",
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Label",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        }
+      ],
+      "duration_discrepancy_gt_one_second": 1823,
+      "end_backward_steps": 0,
+      "end_before_start": 0,
+      "first_end_ts": 1421955842,
+      "first_start_ts": 1421955842,
+      "header": false,
+      "label_counts": {
+        "0": 647252,
+        "1": 52749
+      },
+      "last_end_ts": 1424231129,
+      "last_start_ts": 1424231129,
+      "max_abs_duration_discrepancy_seconds": 60.0,
+      "max_duration": 59.999989,
+      "max_end_ts": 1424231129,
+      "max_start_ts": 1424231129,
+      "min_end_ts": 1421955842,
+      "min_start_ts": 1421955795,
+      "path": "/Users/santiagojerald/argus/data/raw/UNSW-NB15_2.csv",
+      "port_nonnumeric_nonmissing": {
+        "dsport": 61,
+        "sport": 0
+      },
+      "rows": 700001,
+      "start_backward_steps": 100934,
+      "utf8_bom": false
+    },
+    {
+      "attack_category_counts_raw": {
+        " Fuzzers ": 9137,
+        " Reconnaissance ": 5582,
+        " Shellcode ": 593,
+        "<empty>": 542576,
+        "Analysis": 873,
+        "Backdoor": 759,
+        "DoS": 5642,
+        "Exploits": 16574,
+        "Generic": 118198,
+        "Worms": 67
+      },
+      "category_label_conflicts": 0,
+      "columns": [
+        {
+          "missing": 0,
+          "name": "srcip",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sport",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dstip",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dsport",
+          "observed_chunk_dtypes": [
+            "int64",
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "proto",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "state",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dur",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sbytes",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dbytes",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sloss",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dloss",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "service",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sload",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dload",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Spkts",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dpkts",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "swin",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dwin",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "stcpb",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dtcpb",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "smeansz",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dmeansz",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "trans_depth",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "res_bdy_len",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sjit",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Djit",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Stime",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Ltime",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sintpkt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dintpkt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "tcprtt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "synack",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ackdat",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "is_sm_ips_ports",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_state_ttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 656405,
+          "name": "ct_flw_http_mthd",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 689429,
+          "name": "is_ftp_login",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_ftp_cmd",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_srv_src",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_srv_dst",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_src_ ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_src_dport_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_sport_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_src_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 542576,
+          "name": "attack_cat",
+          "observed_chunk_dtypes": [
+            "float64",
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Label",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        }
+      ],
+      "duration_discrepancy_gt_one_second": 0,
+      "end_backward_steps": 0,
+      "end_before_start": 0,
+      "first_end_ts": 1424231129,
+      "first_start_ts": 1424231129,
+      "header": false,
+      "label_counts": {
+        "0": 542576,
+        "1": 157425
+      },
+      "last_end_ts": 1424250009,
+      "last_start_ts": 1424250009,
+      "max_abs_duration_discrepancy_seconds": 0.999062,
+      "max_duration": 59.999966,
+      "max_end_ts": 1424250009,
+      "max_start_ts": 1424250009,
+      "min_end_ts": 1424231129,
+      "min_start_ts": 1424231099,
+      "path": "/Users/santiagojerald/argus/data/raw/UNSW-NB15_3.csv",
+      "port_nonnumeric_nonmissing": {
+        "dsport": 105,
+        "sport": 0
+      },
+      "rows": 700001,
+      "start_backward_steps": 84935,
+      "utf8_bom": false
+    },
+    {
+      "attack_category_counts_raw": {
+        " Fuzzers ": 5390,
+        " Reconnaissance ": 3530,
+        " Shellcode ": 371,
+        "<empty>": 351150,
+        "Analysis": 670,
+        "Backdoor": 666,
+        "DoS": 4907,
+        "Exploits": 11439,
+        "Generic": 61878,
+        "Worms": 43
+      },
+      "category_label_conflicts": 0,
+      "columns": [
+        {
+          "missing": 0,
+          "name": "srcip",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sport",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dstip",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dsport",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "proto",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "state",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dur",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sbytes",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dbytes",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "sloss",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dloss",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "service",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sload",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dload",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Spkts",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dpkts",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "swin",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dwin",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "stcpb",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dtcpb",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "smeansz",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "dmeansz",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "trans_depth",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "res_bdy_len",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sjit",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Djit",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Stime",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Ltime",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Sintpkt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Dintpkt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "tcprtt",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "synack",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ackdat",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "is_sm_ips_ports",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_state_ttl",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 406484,
+          "name": "ct_flw_http_mthd",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 433412,
+          "name": "is_ftp_login",
+          "observed_chunk_dtypes": [
+            "float64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_ftp_cmd",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_srv_src",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_srv_dst",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_src_ ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_src_dport_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_sport_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "ct_dst_src_ltm",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        },
+        {
+          "missing": 351150,
+          "name": "attack_cat",
+          "observed_chunk_dtypes": [
+            "str"
+          ]
+        },
+        {
+          "missing": 0,
+          "name": "Label",
+          "observed_chunk_dtypes": [
+            "int64"
+          ]
+        }
+      ],
+      "duration_discrepancy_gt_one_second": 0,
+      "end_backward_steps": 0,
+      "end_before_start": 0,
+      "first_end_ts": 1424250009,
+      "first_start_ts": 1424250009,
+      "header": false,
+      "label_counts": {
+        "0": 351150,
+        "1": 88894
+      },
+      "last_end_ts": 1424262069,
+      "last_start_ts": 1424262068,
+      "max_abs_duration_discrepancy_seconds": 0.999044,
+      "max_duration": 59.999989,
+      "max_end_ts": 1424262069,
+      "max_start_ts": 1424262068,
+      "min_end_ts": 1424250009,
+      "min_start_ts": 1424249984,
+      "path": "/Users/santiagojerald/argus/data/raw/UNSW-NB15_4.csv",
+      "port_nonnumeric_nonmissing": {
+        "dsport": 75,
+        "sport": 0
+      },
+      "rows": 440044,
+      "start_backward_steps": 52290,
+      "utf8_bom": false
+    }
+  ],
+  "raw_label_counts": {
+    "0": 2218764,
+    "1": 321283
+  },
+  "raw_total_rows": 2540047,
+  "static_files": [],
+  "timeline": {
+    "eligible_samples": 86195,
+    "gaps": [
+      {
+        "idle_windows": 858,
+        "next_occupied_window_ts": 1421955321,
+        "previous_occupied_window_ts": 1421954462
+      },
+      {
+        "idle_windows": 2246283,
+        "next_occupied_window_ts": 1424219008,
+        "previous_occupied_window_ts": 1421972724
+      },
+      {
+        "idle_windows": 1078,
+        "next_occupied_window_ts": 1424221590,
+        "previous_occupied_window_ts": 1424220511
+      },
+      {
+        "idle_windows": 254,
+        "next_occupied_window_ts": 1424255560,
+        "previous_occupied_window_ts": 1424255305
+      }
+    ],
+    "regions": {
+      "test": {
+        "continuations": 13577,
+        "first_target_ts": 1424244572,
+        "last_target_ts": 1424262069,
+        "negative": 1959,
+        "onsets": 1703,
+        "positive": 15280,
+        "samples": 17239
+      },
+      "train": {
+        "continuations": 18386,
+        "first_target_ts": 1421927382,
+        "last_target_ts": 1424235951,
+        "negative": 40279,
+        "onsets": 1671,
+        "positive": 20057,
+        "samples": 60336
+      },
+      "validation": {
+        "continuations": 6960,
+        "first_target_ts": 1424235952,
+        "last_target_ts": 1424244571,
+        "negative": 897,
+        "onsets": 763,
+        "positive": 7723,
+        "samples": 8620
+      }
+    },
+    "sequences": [
+      {
+        "available_rows": 688573,
+        "eligible_samples": 27081,
+        "end_ts": 1421954463,
+        "first_available_ts": 1421927414,
+        "first_start_ts": 1421927377,
+        "last_available_ts": 1421954462,
+        "last_start_ts": 1421954462,
+        "negative_windows": 20596,
+        "onsets_all": 462,
+        "positive_windows": 6490,
+        "sequence_id": "observed-00",
+        "source_files": {
+          "UNSW-NB15_1.csv": 688573
+        },
+        "start_rows": 688573,
+        "start_ts": 1421927377,
+        "windows": 27086
+      },
+      {
+        "available_rows": 398630,
+        "eligible_samples": 17399,
+        "end_ts": 1421972725,
+        "first_available_ts": 1421955321,
+        "first_start_ts": 1421955321,
+        "last_available_ts": 1421972724,
+        "last_start_ts": 1421972724,
+        "negative_windows": 17404,
+        "onsets_all": 0,
+        "positive_windows": 0,
+        "sequence_id": "observed-01",
+        "source_files": {
+          "UNSW-NB15_1.csv": 11428,
+          "UNSW-NB15_2.csv": 387202
+        },
+        "start_rows": 398630,
+        "start_ts": 1421955321,
+        "windows": 17404
+      },
+      {
+        "available_rows": 16710,
+        "eligible_samples": 1499,
+        "end_ts": 1424220512,
+        "first_available_ts": 1424219008,
+        "first_start_ts": 1424219008,
+        "last_available_ts": 1424220511,
+        "last_start_ts": 1424220473,
+        "negative_windows": 945,
+        "onsets_all": 61,
+        "positive_windows": 559,
+        "sequence_id": "observed-02",
+        "source_files": {
+          "UNSW-NB15_2.csv": 16710
+        },
+        "start_rows": 16710,
+        "start_ts": 1424219008,
+        "windows": 1504
+      },
+      {
+        "available_rows": 1210827,
+        "eligible_samples": 33711,
+        "end_ts": 1424255306,
+        "first_available_ts": 1424221590,
+        "first_start_ts": 1424221590,
+        "last_available_ts": 1424255305,
+        "last_start_ts": 1424255264,
+        "negative_windows": 3466,
+        "onsets_all": 2958,
+        "positive_windows": 30250,
+        "sequence_id": "observed-03",
+        "source_files": {
+          "UNSW-NB15_2.csv": 296089,
+          "UNSW-NB15_3.csv": 700001,
+          "UNSW-NB15_4.csv": 214737
+        },
+        "start_rows": 1210827,
+        "start_ts": 1424221590,
+        "windows": 33716
+      },
+      {
+        "available_rows": 225307,
+        "eligible_samples": 6505,
+        "end_ts": 1424262070,
+        "first_available_ts": 1424255560,
+        "first_start_ts": 1424255560,
+        "last_available_ts": 1424262069,
+        "last_start_ts": 1424262068,
+        "negative_windows": 739,
+        "onsets_all": 656,
+        "positive_windows": 5771,
+        "sequence_id": "observed-04",
+        "source_files": {
+          "UNSW-NB15_4.csv": 225307
+        },
+        "start_rows": 225307,
+        "start_ts": 1424255560,
+        "windows": 6510
+      }
+    ],
+    "total_windows": 86220
+  }
+}

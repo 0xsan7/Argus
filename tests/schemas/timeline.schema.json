@@ -1,0 +1,258 @@
+{
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "dataset": {
+          "type": "string"
+        },
+        "dataset_source": {
+          "type": "string"
+        },
+        "dataset_citation": {
+          "type": "string"
+        },
+        "window_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lookback_windows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "min_malicious_flows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "default_model": {
+          "const": "rf"
+        },
+        "default_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "observation_policy": {
+          "type": "string"
+        },
+        "split": {
+          "type": "object",
+          "properties": {
+            "train_end_ts": {
+              "type": "number"
+            },
+            "val_end_ts": {
+              "type": "number"
+            },
+            "test_start_ts": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "train_end_ts",
+            "val_end_ts",
+            "test_start_ts"
+          ]
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "run_id",
+        "dataset",
+        "dataset_source",
+        "dataset_citation",
+        "window_seconds",
+        "lookback_windows",
+        "min_malicious_flows",
+        "default_model",
+        "default_threshold",
+        "observation_policy",
+        "split",
+        "generated_at"
+      ]
+    },
+    "windows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sequence_id": {
+            "type": "string"
+          },
+          "start_ts": {
+            "type": "number"
+          },
+          "end_ts": {
+            "type": "number"
+          },
+          "split": {
+            "enum": [
+              "train",
+              "val",
+              "test"
+            ]
+          },
+          "risk": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "risk_by_model": {
+            "type": "object",
+            "properties": {
+              "oracle_persistence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "lr_current": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "lr_lag": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "rf": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "oracle_persistence",
+              "lr_current",
+              "lr_lag",
+              "rf"
+            ]
+          },
+          "flagged": {
+            "type": "boolean"
+          },
+          "truth_now": {
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "truth_next": {
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "evaluation_attack_category": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evaluation_stage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "explanation_available": {
+            "type": "boolean"
+          },
+          "top_features": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "shap": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "name",
+                "value",
+                "shap"
+              ]
+            },
+            "maxItems": 5
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "flows": {
+                "type": "number",
+                "minimum": 0
+              },
+              "bytes": {
+                "type": "number",
+                "minimum": 0
+              },
+              "packets": {
+                "type": "number",
+                "minimum": 0
+              },
+              "unique_src": {
+                "type": "number",
+                "minimum": 0
+              },
+              "unique_dst": {
+                "type": "number",
+                "minimum": 0
+              },
+              "unique_dst_ports": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "flows",
+              "bytes",
+              "packets",
+              "unique_src",
+              "unique_dst",
+              "unique_dst_ports"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "sequence_id",
+          "start_ts",
+          "end_ts",
+          "split",
+          "risk",
+          "risk_by_model",
+          "flagged",
+          "truth_now",
+          "truth_next",
+          "evaluation_attack_category",
+          "evaluation_stage",
+          "explanation_available",
+          "top_features",
+          "counts"
+        ]
+      }
+    }
+  },
+  "required": [
+    "meta",
+    "windows"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

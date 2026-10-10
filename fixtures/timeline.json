@@ -1,0 +1,1447 @@
+{
+  "meta": {
+    "run_id": "fixture-ui-only",
+    "dataset": "ILLUSTRATIVE UI FIXTURE \u2014 NOT BENCHMARK RESULTS",
+    "dataset_source": "Locally constructed interface fixtures; no source capture",
+    "dataset_citation": "None \u2014 fixture-only",
+    "window_seconds": 10,
+    "lookback_windows": 5,
+    "min_malicious_flows": 1,
+    "default_model": "rf",
+    "default_threshold": 0.5,
+    "observation_policy": "Fixture only. Real full-flow features must become usable at available_ts.",
+    "split": {
+      "train_end_ts": -20,
+      "val_end_ts": -10,
+      "test_start_ts": 0
+    },
+    "generated_at": "2026-10-10T10:31:46.699138+00:00"
+  },
+  "windows": [
+    {
+      "id": 0,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 0,
+      "end_ts": 10,
+      "split": "test",
+      "risk": 0.12,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.08,
+        "lr_lag": 0.18,
+        "rf": 0.12
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 20,
+        "bytes": 10000,
+        "packets": 100,
+        "unique_src": 3,
+        "unique_dst": 6,
+        "unique_dst_ports": 7
+      }
+    },
+    {
+      "id": 1,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 10,
+      "end_ts": 20,
+      "split": "test",
+      "risk": 0.2,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.16,
+        "lr_lag": 0.26,
+        "rf": 0.2
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 21,
+        "bytes": 10123,
+        "packets": 102,
+        "unique_src": 4,
+        "unique_dst": 7,
+        "unique_dst_ports": 8
+      }
+    },
+    {
+      "id": 2,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 20,
+      "end_ts": 30,
+      "split": "test",
+      "risk": 0.23,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.19,
+        "lr_lag": 0.29,
+        "rf": 0.23
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 22,
+        "bytes": 10246,
+        "packets": 104,
+        "unique_src": 5,
+        "unique_dst": 8,
+        "unique_dst_ports": 9
+      }
+    },
+    {
+      "id": 3,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 30,
+      "end_ts": 40,
+      "split": "test",
+      "risk": 0.192,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.152,
+        "lr_lag": 0.252,
+        "rf": 0.192
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 23,
+        "bytes": 10369,
+        "packets": 106,
+        "unique_src": 6,
+        "unique_dst": 6,
+        "unique_dst_ports": 10
+      }
+    },
+    {
+      "id": 4,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 40,
+      "end_ts": 50,
+      "split": "test",
+      "risk": 0.109,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.069,
+        "lr_lag": 0.169,
+        "rf": 0.109
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 24,
+        "bytes": 10492,
+        "packets": 108,
+        "unique_src": 3,
+        "unique_dst": 7,
+        "unique_dst_ports": 11
+      }
+    },
+    {
+      "id": 5,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 50,
+      "end_ts": 60,
+      "split": "test",
+      "risk": 0.033,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.01,
+        "lr_lag": 0.093,
+        "rf": 0.033
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 25,
+        "bytes": 10615,
+        "packets": 110,
+        "unique_src": 4,
+        "unique_dst": 8,
+        "unique_dst_ports": 12
+      }
+    },
+    {
+      "id": 6,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 60,
+      "end_ts": 70,
+      "split": "test",
+      "risk": 0.621,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.581,
+        "lr_lag": 0.681,
+        "rf": 0.621
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": true,
+      "top_features": [
+        {
+          "name": "unique_dst_ports_lag0",
+          "value": 18,
+          "shap": 0.24
+        },
+        {
+          "name": "bytes_lag1",
+          "value": 17000,
+          "shap": -0.08
+        }
+      ],
+      "counts": {
+        "flows": 26,
+        "bytes": 10738,
+        "packets": 112,
+        "unique_src": 5,
+        "unique_dst": 6,
+        "unique_dst_ports": 13
+      }
+    },
+    {
+      "id": 7,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 70,
+      "end_ts": 80,
+      "split": "test",
+      "risk": 0.667,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.627,
+        "lr_lag": 0.727,
+        "rf": 0.667
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 27,
+        "bytes": 10861,
+        "packets": 114,
+        "unique_src": 6,
+        "unique_dst": 7,
+        "unique_dst_ports": 14
+      }
+    },
+    {
+      "id": 8,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 80,
+      "end_ts": 90,
+      "split": "test",
+      "risk": 0.752,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.712,
+        "lr_lag": 0.812,
+        "rf": 0.752
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 28,
+        "bytes": 10984,
+        "packets": 116,
+        "unique_src": 3,
+        "unique_dst": 8,
+        "unique_dst_ports": 15
+      }
+    },
+    {
+      "id": 9,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 90,
+      "end_ts": 100,
+      "split": "test",
+      "risk": 0.823,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.783,
+        "lr_lag": 0.883,
+        "rf": 0.823
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 29,
+        "bytes": 11107,
+        "packets": 118,
+        "unique_src": 4,
+        "unique_dst": 6,
+        "unique_dst_ports": 16
+      }
+    },
+    {
+      "id": 10,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 100,
+      "end_ts": 110,
+      "split": "test",
+      "risk": 0.837,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.797,
+        "lr_lag": 0.897,
+        "rf": 0.837
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 30,
+        "bytes": 11230,
+        "packets": 120,
+        "unique_src": 5,
+        "unique_dst": 7,
+        "unique_dst_ports": 17
+      }
+    },
+    {
+      "id": 11,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 110,
+      "end_ts": 120,
+      "split": "test",
+      "risk": 0.784,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.744,
+        "lr_lag": 0.844,
+        "rf": 0.784
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 31,
+        "bytes": 11353,
+        "packets": 122,
+        "unique_src": 6,
+        "unique_dst": 8,
+        "unique_dst_ports": 18
+      }
+    },
+    {
+      "id": 12,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 120,
+      "end_ts": 130,
+      "split": "test",
+      "risk": 0.698,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.658,
+        "lr_lag": 0.758,
+        "rf": 0.698
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 20,
+        "bytes": 11476,
+        "packets": 124,
+        "unique_src": 3,
+        "unique_dst": 6,
+        "unique_dst_ports": 19
+      }
+    },
+    {
+      "id": 13,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 130,
+      "end_ts": 140,
+      "split": "test",
+      "risk": 0.632,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.592,
+        "lr_lag": 0.692,
+        "rf": 0.632
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 21,
+        "bytes": 11599,
+        "packets": 126,
+        "unique_src": 4,
+        "unique_dst": 7,
+        "unique_dst_ports": 20
+      }
+    },
+    {
+      "id": 14,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 140,
+      "end_ts": 150,
+      "split": "test",
+      "risk": 0.03,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.01,
+        "lr_lag": 0.09,
+        "rf": 0.03
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 22,
+        "bytes": 11722,
+        "packets": 128,
+        "unique_src": 5,
+        "unique_dst": 8,
+        "unique_dst_ports": 7
+      }
+    },
+    {
+      "id": 15,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 150,
+      "end_ts": 160,
+      "split": "test",
+      "risk": 0.076,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.036,
+        "lr_lag": 0.136,
+        "rf": 0.076
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 23,
+        "bytes": 11845,
+        "packets": 130,
+        "unique_src": 6,
+        "unique_dst": 6,
+        "unique_dst_ports": 8
+      }
+    },
+    {
+      "id": 16,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 160,
+      "end_ts": 170,
+      "split": "test",
+      "risk": 0.162,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.122,
+        "lr_lag": 0.222,
+        "rf": 0.162
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 24,
+        "bytes": 11968,
+        "packets": 132,
+        "unique_src": 3,
+        "unique_dst": 7,
+        "unique_dst_ports": 9
+      }
+    },
+    {
+      "id": 17,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 170,
+      "end_ts": 180,
+      "split": "test",
+      "risk": 0.223,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.183,
+        "lr_lag": 0.283,
+        "rf": 0.223
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 25,
+        "bytes": 12091,
+        "packets": 134,
+        "unique_src": 4,
+        "unique_dst": 8,
+        "unique_dst_ports": 10
+      }
+    },
+    {
+      "id": 18,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 180,
+      "end_ts": 190,
+      "split": "test",
+      "risk": 0.219,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.179,
+        "lr_lag": 0.279,
+        "rf": 0.219
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 26,
+        "bytes": 12214,
+        "packets": 136,
+        "unique_src": 5,
+        "unique_dst": 6,
+        "unique_dst_ports": 11
+      }
+    },
+    {
+      "id": 19,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 190,
+      "end_ts": 200,
+      "split": "test",
+      "risk": 0.154,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.114,
+        "lr_lag": 0.214,
+        "rf": 0.154
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 27,
+        "bytes": 12337,
+        "packets": 138,
+        "unique_src": 6,
+        "unique_dst": 7,
+        "unique_dst_ports": 12
+      }
+    },
+    {
+      "id": 20,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 200,
+      "end_ts": 210,
+      "split": "test",
+      "risk": 0.068,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.028,
+        "lr_lag": 0.128,
+        "rf": 0.068
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 28,
+        "bytes": 12460,
+        "packets": 140,
+        "unique_src": 3,
+        "unique_dst": 8,
+        "unique_dst_ports": 13
+      }
+    },
+    {
+      "id": 21,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 210,
+      "end_ts": 220,
+      "split": "test",
+      "risk": 0.03,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.01,
+        "lr_lag": 0.09,
+        "rf": 0.03
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 29,
+        "bytes": 12583,
+        "packets": 142,
+        "unique_src": 4,
+        "unique_dst": 6,
+        "unique_dst_ports": 14
+      }
+    },
+    {
+      "id": 22,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 220,
+      "end_ts": 230,
+      "split": "test",
+      "risk": 0.636,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.596,
+        "lr_lag": 0.696,
+        "rf": 0.636
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 30,
+        "bytes": 12706,
+        "packets": 144,
+        "unique_src": 5,
+        "unique_dst": 7,
+        "unique_dst_ports": 15
+      }
+    },
+    {
+      "id": 23,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 230,
+      "end_ts": 240,
+      "split": "test",
+      "risk": 0.706,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.666,
+        "lr_lag": 0.766,
+        "rf": 0.706
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 31,
+        "bytes": 12829,
+        "packets": 146,
+        "unique_src": 6,
+        "unique_dst": 8,
+        "unique_dst_ports": 16
+      }
+    },
+    {
+      "id": 24,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 240,
+      "end_ts": 250,
+      "split": "test",
+      "risk": 0.791,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.751,
+        "lr_lag": 0.851,
+        "rf": 0.791
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": true,
+      "top_features": [
+        {
+          "name": "unique_dst_ports_lag0",
+          "value": 18,
+          "shap": 0.24
+        },
+        {
+          "name": "bytes_lag1",
+          "value": 17000,
+          "shap": -0.08
+        }
+      ],
+      "counts": {
+        "flows": 20,
+        "bytes": 12952,
+        "packets": 148,
+        "unique_src": 3,
+        "unique_dst": 6,
+        "unique_dst_ports": 17
+      }
+    },
+    {
+      "id": 25,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 250,
+      "end_ts": 260,
+      "split": "test",
+      "risk": 0.838,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.798,
+        "lr_lag": 0.898,
+        "rf": 0.838
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 21,
+        "bytes": 13075,
+        "packets": 150,
+        "unique_src": 4,
+        "unique_dst": 7,
+        "unique_dst_ports": 18
+      }
+    },
+    {
+      "id": 26,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 260,
+      "end_ts": 270,
+      "split": "test",
+      "risk": 0.818,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.778,
+        "lr_lag": 0.878,
+        "rf": 0.818
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 22,
+        "bytes": 13198,
+        "packets": 152,
+        "unique_src": 5,
+        "unique_dst": 8,
+        "unique_dst_ports": 19
+      }
+    },
+    {
+      "id": 27,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 270,
+      "end_ts": 280,
+      "split": "test",
+      "risk": 0.133,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.093,
+        "lr_lag": 0.193,
+        "rf": 0.133
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 23,
+        "bytes": 13321,
+        "packets": 154,
+        "unique_src": 6,
+        "unique_dst": 6,
+        "unique_dst_ports": 20
+      }
+    },
+    {
+      "id": 28,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 280,
+      "end_ts": 290,
+      "split": "test",
+      "risk": 0.05,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.01,
+        "lr_lag": 0.11,
+        "rf": 0.05
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 24,
+        "bytes": 13444,
+        "packets": 156,
+        "unique_src": 3,
+        "unique_dst": 7,
+        "unique_dst_ports": 7
+      }
+    },
+    {
+      "id": 29,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 290,
+      "end_ts": 300,
+      "split": "test",
+      "risk": 0.03,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.01,
+        "lr_lag": 0.09,
+        "rf": 0.03
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 25,
+        "bytes": 13567,
+        "packets": 158,
+        "unique_src": 4,
+        "unique_dst": 8,
+        "unique_dst_ports": 8
+      }
+    },
+    {
+      "id": 30,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 300,
+      "end_ts": 310,
+      "split": "test",
+      "risk": 0.039,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.01,
+        "lr_lag": 0.099,
+        "rf": 0.039
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 26,
+        "bytes": 13690,
+        "packets": 160,
+        "unique_src": 5,
+        "unique_dst": 6,
+        "unique_dst_ports": 9
+      }
+    },
+    {
+      "id": 31,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 310,
+      "end_ts": 320,
+      "split": "test",
+      "risk": 0.117,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.077,
+        "lr_lag": 0.177,
+        "rf": 0.117
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 27,
+        "bytes": 13813,
+        "packets": 162,
+        "unique_src": 6,
+        "unique_dst": 7,
+        "unique_dst_ports": 10
+      }
+    },
+    {
+      "id": 32,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 320,
+      "end_ts": 330,
+      "split": "test",
+      "risk": 0.198,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.158,
+        "lr_lag": 0.258,
+        "rf": 0.198
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 28,
+        "bytes": 13936,
+        "packets": 164,
+        "unique_src": 3,
+        "unique_dst": 8,
+        "unique_dst_ports": 11
+      }
+    },
+    {
+      "id": 33,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 330,
+      "end_ts": 340,
+      "split": "test",
+      "risk": 0.23,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.19,
+        "lr_lag": 0.29,
+        "rf": 0.23
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 29,
+        "bytes": 14059,
+        "packets": 166,
+        "unique_src": 4,
+        "unique_dst": 6,
+        "unique_dst_ports": 12
+      }
+    },
+    {
+      "id": 34,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 340,
+      "end_ts": 350,
+      "split": "test",
+      "risk": 0.194,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.154,
+        "lr_lag": 0.254,
+        "rf": 0.194
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 30,
+        "bytes": 14182,
+        "packets": 168,
+        "unique_src": 5,
+        "unique_dst": 7,
+        "unique_dst_ports": 13
+      }
+    },
+    {
+      "id": 35,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 350,
+      "end_ts": 360,
+      "split": "test",
+      "risk": 0.112,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.072,
+        "lr_lag": 0.172,
+        "rf": 0.112
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 31,
+        "bytes": 14305,
+        "packets": 170,
+        "unique_src": 6,
+        "unique_dst": 8,
+        "unique_dst_ports": 14
+      }
+    },
+    {
+      "id": 36,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 360,
+      "end_ts": 370,
+      "split": "test",
+      "risk": 0.645,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.605,
+        "lr_lag": 0.705,
+        "rf": 0.645
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": true,
+      "top_features": [
+        {
+          "name": "unique_dst_ports_lag0",
+          "value": 18,
+          "shap": 0.24
+        },
+        {
+          "name": "bytes_lag1",
+          "value": 17000,
+          "shap": -0.08
+        }
+      ],
+      "counts": {
+        "flows": 20,
+        "bytes": 14428,
+        "packets": 172,
+        "unique_src": 3,
+        "unique_dst": 6,
+        "unique_dst_ports": 15
+      }
+    },
+    {
+      "id": 37,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 370,
+      "end_ts": 380,
+      "split": "test",
+      "risk": 0.621,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.581,
+        "lr_lag": 0.681,
+        "rf": 0.621
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 21,
+        "bytes": 14551,
+        "packets": 174,
+        "unique_src": 4,
+        "unique_dst": 7,
+        "unique_dst_ports": 16
+      }
+    },
+    {
+      "id": 38,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 380,
+      "end_ts": 390,
+      "split": "test",
+      "risk": 0.665,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.625,
+        "lr_lag": 0.725,
+        "rf": 0.665
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 22,
+        "bytes": 14674,
+        "packets": 176,
+        "unique_src": 5,
+        "unique_dst": 8,
+        "unique_dst_ports": 17
+      }
+    },
+    {
+      "id": 39,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 390,
+      "end_ts": 400,
+      "split": "test",
+      "risk": 0.749,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.709,
+        "lr_lag": 0.809,
+        "rf": 0.749
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 23,
+        "bytes": 14797,
+        "packets": 178,
+        "unique_src": 6,
+        "unique_dst": 6,
+        "unique_dst_ports": 18
+      }
+    },
+    {
+      "id": 40,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 400,
+      "end_ts": 410,
+      "split": "test",
+      "risk": 0.822,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.782,
+        "lr_lag": 0.882,
+        "rf": 0.822
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 24,
+        "bytes": 14920,
+        "packets": 180,
+        "unique_src": 3,
+        "unique_dst": 7,
+        "unique_dst_ports": 19
+      }
+    },
+    {
+      "id": 41,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 410,
+      "end_ts": 420,
+      "split": "test",
+      "risk": 0.837,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.797,
+        "lr_lag": 0.897,
+        "rf": 0.837
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 1,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 25,
+        "bytes": 15043,
+        "packets": 182,
+        "unique_src": 4,
+        "unique_dst": 8,
+        "unique_dst_ports": 20
+      }
+    },
+    {
+      "id": 42,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 420,
+      "end_ts": 430,
+      "split": "test",
+      "risk": 0.786,
+      "risk_by_model": {
+        "oracle_persistence": 1,
+        "lr_current": 0.746,
+        "lr_lag": 0.846,
+        "rf": 0.786
+      },
+      "flagged": true,
+      "truth_now": 1,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 26,
+        "bytes": 15166,
+        "packets": 184,
+        "unique_src": 5,
+        "unique_dst": 6,
+        "unique_dst_ports": 7
+      }
+    },
+    {
+      "id": 43,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 430,
+      "end_ts": 440,
+      "split": "test",
+      "risk": 0.09,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.05,
+        "lr_lag": 0.15,
+        "rf": 0.09
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 27,
+        "bytes": 15289,
+        "packets": 186,
+        "unique_src": 6,
+        "unique_dst": 7,
+        "unique_dst_ports": 8
+      }
+    },
+    {
+      "id": 44,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 440,
+      "end_ts": 450,
+      "split": "test",
+      "risk": 0.03,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.01,
+        "lr_lag": 0.09,
+        "rf": 0.03
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 28,
+        "bytes": 15412,
+        "packets": 188,
+        "unique_src": 3,
+        "unique_dst": 8,
+        "unique_dst_ports": 9
+      }
+    },
+    {
+      "id": 45,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 450,
+      "end_ts": 460,
+      "split": "test",
+      "risk": 0.03,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.01,
+        "lr_lag": 0.09,
+        "rf": 0.03
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 29,
+        "bytes": 15535,
+        "packets": 190,
+        "unique_src": 4,
+        "unique_dst": 6,
+        "unique_dst_ports": 10
+      }
+    },
+    {
+      "id": 46,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 460,
+      "end_ts": 470,
+      "split": "test",
+      "risk": 0.073,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.033,
+        "lr_lag": 0.133,
+        "rf": 0.073
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 30,
+        "bytes": 15658,
+        "packets": 192,
+        "unique_src": 5,
+        "unique_dst": 7,
+        "unique_dst_ports": 11
+      }
+    },
+    {
+      "id": 47,
+      "sequence_id": "illustrative-fixture",
+      "start_ts": 470,
+      "end_ts": 480,
+      "split": "test",
+      "risk": 0.16,
+      "risk_by_model": {
+        "oracle_persistence": 0,
+        "lr_current": 0.12,
+        "lr_lag": 0.22,
+        "rf": 0.16
+      },
+      "flagged": false,
+      "truth_now": 0,
+      "truth_next": 0,
+      "evaluation_attack_category": null,
+      "evaluation_stage": null,
+      "explanation_available": false,
+      "top_features": [],
+      "counts": {
+        "flows": 31,
+        "bytes": 15781,
+        "packets": 194,
+        "unique_src": 6,
+        "unique_dst": 8,
+        "unique_dst_ports": 12
+      }
+    }
+  ]
+}

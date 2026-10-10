@@ -1,0 +1,28 @@
+{
+  "run_id": "fixture-ui-only",
+  "generated_at": "2026-10-10T10:31:46.699138+00:00",
+  "dataset": "ILLUSTRATIVE UI FIXTURE \u2014 NOT BENCHMARK RESULTS",
+  "source_files": [],
+  "config": {
+    "window_seconds": 10,
+    "lookback_windows": 5,
+    "min_malicious_flows": 1,
+    "max_gap_windows": 60,
+    "random_seed": 42
+  },
+  "models": {
+    "lr_current": {
+      "fixture": true
+    },
+    "lr_lag": {
+      "fixture": true
+    },
+    "rf": {
+      "fixture": true
+    }
+  },
+  "feature_names": [
+    "unique_dst_ports_lag0",
+    "bytes_lag1"
+  ]
+}

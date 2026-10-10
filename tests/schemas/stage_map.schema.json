@@ -1,0 +1,50 @@
+{
+  "type": "object",
+  "properties": {
+    "mapping_version": {
+      "type": "string"
+    },
+    "dataset": {
+      "type": "string"
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "tactic": {
+                "type": "string"
+              },
+              "tactic_id": {
+                "type": "string"
+              },
+              "confidence": {
+                "const": "manual-heuristic"
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tactic",
+              "tactic_id",
+              "confidence",
+              "note"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "mapping_version",
+    "dataset",
+    "mapping"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

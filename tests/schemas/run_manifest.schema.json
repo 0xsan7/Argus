@@ -1,0 +1,101 @@
+{
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dataset": {
+      "type": "string"
+    },
+    "source_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "size_bytes"
+        ]
+      }
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "window_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lookback_windows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "min_malicious_flows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_gap_windows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "random_seed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "window_seconds",
+        "lookback_windows",
+        "min_malicious_flows",
+        "max_gap_windows",
+        "random_seed"
+      ]
+    },
+    "models": {
+      "type": "object",
+      "properties": {
+        "lr_current": {
+          "type": "object"
+        },
+        "lr_lag": {
+          "type": "object"
+        },
+        "rf": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "lr_current",
+        "lr_lag",
+        "rf"
+      ]
+    },
+    "feature_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "run_id",
+    "generated_at",
+    "dataset",
+    "source_files",
+    "config",
+    "models",
+    "feature_names"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

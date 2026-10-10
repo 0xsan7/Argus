@@ -1,0 +1,147 @@
+{
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "test_windows": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "positive_rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "attack_onset_windows": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "continuation_windows": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "threshold_policy": {
+      "type": "string"
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "enum": [
+              "oracle_persistence",
+              "lr_current",
+              "lr_lag",
+              "rf"
+            ]
+          },
+          "threshold": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "precision": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "recall": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "f1": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "fpr": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "onset_recall": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "pr_auc": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "latency_ms_per_window": {
+            "type": "number",
+            "minimum": 0
+          },
+          "confusion": {
+            "type": "object",
+            "properties": {
+              "tp": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "fp": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "tn": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "fn": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "tp",
+              "fp",
+              "tn",
+              "fn"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "threshold",
+          "precision",
+          "recall",
+          "f1",
+          "fpr",
+          "onset_recall",
+          "pr_auc",
+          "latency_ms_per_window",
+          "confusion"
+        ]
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "run_id",
+    "test_windows",
+    "positive_rate",
+    "attack_onset_windows",
+    "continuation_windows",
+    "threshold_policy",
+    "models",
+    "notes"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
