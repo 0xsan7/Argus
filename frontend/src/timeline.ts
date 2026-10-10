@@ -15,6 +15,11 @@ export interface ChartPoint extends TimelineWindowInput {
   targetEnd: number
 }
 
+export interface PlotPoint extends Omit<ChartPoint, 'risk'> {
+  risk: number | null
+  gap?: boolean
+}
+
 export interface TruthInterval {
   start: number
   end: number
@@ -65,4 +70,25 @@ export function chartSeries(windows: TimelineWindowInput[], windowSeconds: numbe
   }
 
   return seriesList
+}
+
+export function timelinePlotPoints(series: Series[], windowSeconds: number): PlotPoint[] {
+  return series.flatMap((segment, index) => {
+    if (index === 0 || segment.points.length === 0) return segment.points.map(point => ({ ...point }))
+    const previous = series[index - 1].points.at(-1)
+    if (!previous) return segment.points.map(point => ({ ...point }))
+    const separator: PlotPoint = {
+      ...previous,
+      id: -index,
+      targetStart: previous.targetEnd,
+      targetEnd: previous.targetEnd + windowSeconds,
+      risk: null,
+      flagged: false,
+      truth_next: 0,
+      evaluation_stage: null,
+      explanation_available: false,
+      gap: true,
+    }
+    return [separator, ...segment.points.map(point => ({ ...point }))]
+  })
 }

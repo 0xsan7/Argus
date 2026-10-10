@@ -13,7 +13,7 @@ import {
   CartesianGrid,
 } from 'recharts'
 import type { AnalystNote, DashboardData, Health, Meta, Metrics, ModelMetrics, ModelName, TimelineWindow, WindowDetail } from './types'
-import { chartSeries } from './timeline'
+import { chartSeries, timelinePlotPoints } from './timeline'
 
 const modelNames = {
   rf: 'Random Forest',
@@ -228,10 +228,11 @@ export default function App() {
   const rf = data?.metrics.models.find(model => model.name === 'rf')
   const fixture = data?.health.mode === 'fixtures'
 
-  // Prepare chart series: for fixtures use all; for real large data use first sequence or slice
-  const chartWindows = data ? (data.windows.length <= 100 ? data.windows : data.windows.slice(0, 100)) : []
+  const chartWindows = data?.windows ?? []
   const series = data ? chartSeries(chartWindows, data.meta.window_seconds) : []
-  const primarySeries = series[0] || { points: [], truth: [] }
+  const chartPoints = timelinePlotPoints(series, data?.meta.window_seconds ?? 0)
+  const truthIntervals = series.flatMap(segment => segment.truth)
+  const topFlaggedWindows = data?.windows.filter(window => window.flagged).sort((a, b) => b.risk - a.risk).slice(0, 5) ?? []
 
   return (
     <div className="app-shell">
@@ -350,8 +351,7 @@ export default function App() {
                     <div className="eyebrow">01 / RISK TIMELINE</div>
                     <h2 id="timeline-title">Next-window risk</h2>
                     <p>
-                      Scores from {modelNames[data.meta.default_model]} · {data.meta.window_seconds}s prediction horizon
-                      {data.windows.length > 100 && ` · Viewing first 100 of ${data.windows.length} test windows`}
+                      Scores from {modelNames[data.meta.default_model]} · {data.meta.window_seconds}s prediction horizon · All {data.windows.length} test windows
                     </p>
                   </div>
                   <span className="model-tag">
@@ -372,7 +372,7 @@ export default function App() {
 
                 <div className="chart-container">
                   <ResponsiveContainer width="100%" height={260}>
-                    <LineChart data={primarySeries.points} margin={{ top: 10, right: 20, bottom: 25, left: 0 }}>
+                    <LineChart data={chartPoints} margin={{ top: 10, right: 20, bottom: 25, left: 0 }}>
                       <XAxis
                         dataKey="targetStart"
                         stroke="#5c6b63"
@@ -388,6 +388,7 @@ export default function App() {
                         content={({ active, payload }) => {
                           if (!active || !payload || !payload.length) return null
                           const pt = payload[0].payload
+                          if (pt.gap || pt.risk === null) return null
                           return (
                             <div style={{ background: '#17211d', border: '1px solid #2c3932', padding: '8px 12px', borderRadius: 4, fontSize: 11 }}>
                               <div style={{ color: '#9cdfb7', fontWeight: 600 }}>Window #{pt.id}</div>
@@ -403,7 +404,7 @@ export default function App() {
                         stroke="var(--amber)"
                         strokeDasharray="3 3"
                       />
-                      {primarySeries.truth.map((t, idx) => (
+                      {truthIntervals.map((t, idx) => (
                         <ReferenceArea
                           key={idx}
                           x1={t.start}
@@ -418,6 +419,7 @@ export default function App() {
                       <Line
                         type="monotone"
                         dataKey="risk"
+                        connectNulls={false}
                         stroke="var(--mint)"
                         strokeWidth={2}
                         isAnimationActive={false}
@@ -444,12 +446,11 @@ export default function App() {
 
                 <div className="inspect-bar">
                   <span>Quick inspect:</span>
-                  <button className="inspect-btn" onClick={() => inspectWindow(0)}>
-                    Flagged Window #0
-                  </button>
-                  <button className="inspect-btn" onClick={() => inspectWindow(99999)}>
-                    Train/Val Window #99999
-                  </button>
+                  {topFlaggedWindows.length ? topFlaggedWindows.map(window => (
+                    <button className="inspect-btn" key={window.id} onClick={() => inspectWindow(window.id)}>
+                      #{window.id} · {window.risk.toFixed(3)}
+                    </button>
+                  )) : <span>No flagged test windows</span>}
                   <span style={{ marginLeft: 'auto' }}>Or inspect by ID:</span>
                   <input
                     type="number"
