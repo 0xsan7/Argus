@@ -69,3 +69,24 @@ h1, h2, h3, p { margin: 0; }h1 { font-size: 27px; font-weight: 550; letter-spaci
 .meta-card { background: #111a16; border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; font-size: 11px; }
 .meta-card-label { font-size: 9px; font-family: var(--mono); color: var(--muted); margin-bottom: 3px; }
 .meta-card-val { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.models-page { display: grid; gap: 18px; }
+.comparison-summary, .models-panel { border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
+.comparison-summary { padding: 16px 20px; border-left: 3px solid var(--mint); }
+.comparison-summary p { margin-top: 7px; line-height: 1.7; color: #d9e6de; }
+.models-panel { overflow: hidden; }
+.models-panel-heading { min-height: 68px; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--border); }
+.models-panel-heading h2 { margin-top: 4px; }
+.metrics-table-wrap { overflow-x: auto; }
+.metrics-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.metrics-table th, .metrics-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+.metrics-table thead th { color: var(--muted); font: 9px var(--mono); letter-spacing: .55px; text-transform: uppercase; }
+.metrics-table thead th:first-child, .metrics-table tbody th { text-align: left; }
+.metrics-table tbody th { color: var(--text); font-weight: 550; }
+.metrics-table tbody td { color: #d1ded6; font-family: var(--mono); font-size: 11px; }
+.metrics-table tbody tr:last-child th, .metrics-table tbody tr:last-child td { border-bottom: 0; }
+.model-caveat { display: block; margin-top: 3px; color: var(--amber); font: 9px var(--mono); }
+.threshold-note { padding: 11px 15px; border-top: 1px solid var(--border); color: var(--muted); font-size: 10px; }
+.chart-metric-select { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 10px; }
+.chart-metric-select select { padding: 6px 9px; border: 1px solid var(--border); border-radius: 4px; background: #111a16; color: var(--text); }
+.comparison-chart { min-height: 300px; padding: 10px 15px 14px; }
+@media (max-width: 560px) { .models-panel-heading { padding: 13px; align-items: flex-start; }.metrics-table th, .metrics-table td { padding: 10px 11px; }.comparison-summary { padding: 14px; }.chart-metric-select { align-items: flex-start; flex-direction: column; gap: 4px; } }

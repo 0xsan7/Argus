@@ -8,8 +8,11 @@ import {
   Tooltip,
   ReferenceLine,
   ReferenceArea,
+  BarChart,
+  Bar,
+  CartesianGrid,
 } from 'recharts'
-import type { AnalystNote, DashboardData, Health, Meta, Metrics, TimelineWindow, WindowDetail } from './types'
+import type { AnalystNote, DashboardData, Health, Meta, Metrics, ModelMetrics, ModelName, TimelineWindow, WindowDetail } from './types'
 import { chartSeries } from './timeline'
 
 const modelNames = {
@@ -20,8 +23,91 @@ const modelNames = {
 }
 
 const percent = (value: number) => `${(value * 100).toFixed(1)}%`
+const modelOrder: ModelName[] = ['oracle_persistence', 'lr_current', 'lr_lag', 'rf']
+
+function metricText(value: number | null, metric: 'pr_auc' | 'f1' | 'recall' | 'onset_recall' | 'fpr' | 'latency_ms_per_window') {
+  if (value === null || value === undefined) return 'N/A'
+  if (metric === 'latency_ms_per_window') return `${value.toFixed(2)} ms`
+  if (metric === 'f1' || metric === 'recall' || metric === 'onset_recall' || metric === 'fpr') return percent(value)
+  return value.toFixed(3)
+}
+
+function comparisonSentence(models: ModelMetrics[]) {
+  const rf = models.find(model => model.name === 'rf')
+  const lr = models.find(model => model.name === 'lr_current')
+  if (!rf || !lr) return 'RF and current-window LR metrics are not both available for comparison. Oracle persistence is non-deployable because it uses current-window ground truth.'
+  const compare = (label: string, rfValue: number | null, lrValue: number | null, metric: 'pr_auc' | 'f1') => {
+    if (rfValue === null || lrValue === null) return `${label} is unavailable for one or both models`
+    const result = rfValue > lrValue ? 'beats' : rfValue < lrValue ? 'trails' : 'matches'
+    return `${result} current-window LR on ${label} (${metricText(rfValue, metric)} vs ${metricText(lrValue, metric)})`
+  }
+  return `RF ${compare('PR-AUC', rf.pr_auc, lr.pr_auc, 'pr_auc')} and ${compare('F1', rf.f1, lr.f1, 'f1')}. Oracle persistence is non-deployable because it uses current-window ground truth.`
+}
+
+type ComparisonMetric = 'pr_auc' | 'f1' | 'recall' | 'onset_recall' | 'fpr' | 'latency_ms_per_window'
+const comparisonMetrics: { key: ComparisonMetric; label: string }[] = [
+  { key: 'pr_auc', label: 'PR-AUC' },
+  { key: 'f1', label: 'F1' },
+  { key: 'recall', label: 'Recall' },
+  { key: 'onset_recall', label: 'Onset recall' },
+  { key: 'fpr', label: 'FPR' },
+  { key: 'latency_ms_per_window', label: 'Latency (ms/window)' },
+]
+
+function ModelsPage({ metrics, loading, error, onRetry }: { metrics: Metrics | null; loading: boolean; error: string | null; onRetry: () => void }) {
+  const [selectedMetric, setSelectedMetric] = useState<ComparisonMetric>('f1')
+  if (loading) return <div className="state-panel" role="status"><span className="loading-mark" />Loading model metrics…</div>
+  if (error) return <div className="state-panel" role="alert"><strong>Model metrics unavailable</strong><p>{error}</p><button className="inspect-btn" onClick={onRetry}>Retry loading metrics</button></div>
+  if (!metrics?.models.length) return <div className="state-panel" role="status"><strong>No model metrics available</strong><p>The metrics artifact contains no evaluated models.</p></div>
+
+  const rows = modelOrder.map(name => metrics.models.find(model => model.name === name) ?? null)
+  const chartData = rows.map((model, index) => ({
+    name: modelNames[modelOrder[index]],
+    value: model?.[selectedMetric] ?? null,
+  }))
+  const selectedLabel = comparisonMetrics.find(metric => metric.key === selectedMetric)?.label ?? 'F1'
+
+  return (
+    <div className="models-page">
+      <section className="comparison-summary" aria-label="Model comparison summary">
+        <div className="eyebrow">TEST SPLIT / FOUR MODEL EVALUATION</div>
+        <p>{comparisonSentence(metrics.models)}</p>
+      </section>
+      <section className="models-panel" aria-labelledby="models-table-title">
+        <div className="models-panel-heading"><div><div className="eyebrow">01 / METRICS</div><h2 id="models-table-title">Test performance</h2></div><span className="eval-marker">EVALUATION ONLY</span></div>
+        <div className="metrics-table-wrap">
+          <table className="metrics-table">
+            <thead><tr><th scope="col">Model</th><th scope="col">PR-AUC</th><th scope="col">F1</th><th scope="col">Recall</th><th scope="col">Onset recall</th><th scope="col">FPR</th><th scope="col">Latency</th></tr></thead>
+            <tbody>{rows.map((model, index) => <tr key={modelOrder[index]}>
+              <th scope="row">{modelNames[modelOrder[index]]}{modelOrder[index] === 'oracle_persistence' && <span className="model-caveat">Non-deployable diagnostic</span>}</th>
+              <td>{metricText(model?.pr_auc ?? null, 'pr_auc')}</td><td>{metricText(model?.f1 ?? null, 'f1')}</td><td>{metricText(model?.recall ?? null, 'recall')}</td><td>{metricText(model?.onset_recall ?? null, 'onset_recall')}</td><td>{metricText(model?.fpr ?? null, 'fpr')}</td><td>{metricText(model?.latency_ms_per_window ?? null, 'latency_ms_per_window')}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+        <p className="threshold-note">Threshold policy: {metrics.threshold_policy || 'not recorded'}. Oracle persistence is a diagnostic that uses current-window ground truth.</p>
+      </section>
+      <section className="models-panel" aria-labelledby="models-chart-title">
+        <div className="models-panel-heading"><div><div className="eyebrow">02 / MODEL COMPARISON</div><h2 id="models-chart-title">Compare {selectedLabel}</h2></div>
+          <label className="chart-metric-select">Metric<select aria-label="Chart metric" value={selectedMetric} onChange={event => setSelectedMetric(event.target.value as ComparisonMetric)}>{comparisonMetrics.map(metric => <option key={metric.key} value={metric.key}>{metric.label}</option>)}</select></label>
+        </div>
+        <div className="comparison-chart" role="img" aria-label={`${selectedLabel} model comparison chart`}>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={chartData} margin={{ top: 8, right: 18, bottom: 8, left: 5 }}>
+              <CartesianGrid stroke="#2c3932" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" stroke="#5c6b63" tick={{ fill: '#c1cec8', fontSize: 11 }} />
+              <YAxis stroke="#5c6b63" tick={{ fill: '#99aba0', fontSize: 10 }} />
+              <Tooltip formatter={value => metricText(Number(value ?? 0), selectedMetric)} contentStyle={{ background: '#17211d', border: '1px solid #2c3932' }} />
+              <Bar dataKey="value" name={selectedLabel} fill="var(--mint)" radius={[3, 3, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
+    </div>
+  )
+}
 
 export default function App() {
+  const [page, setPage] = useState<'dashboard' | 'models'>(() => window.location.pathname === '/models' ? 'models' : 'dashboard')
   const [data, setData] = useState<DashboardData | null>(null)
   const [dashboardError, setDashboardError] = useState<string | null>(null)
   const [dashboardAttempt, setDashboardAttempt] = useState(0)
@@ -33,6 +119,17 @@ export default function App() {
   const [note, setNote] = useState<AnalystNote | null>(null)
   const [loadingNote, setLoadingNote] = useState(false)
   const [noteError, setNoteError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const onPopState = () => setPage(window.location.pathname === '/models' ? 'models' : 'dashboard')
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  const navigate = (path: '/' | '/models') => {
+    window.history.pushState({}, '', path)
+    setPage(path === '/models' ? 'models' : 'dashboard')
+  }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -130,12 +227,12 @@ export default function App() {
         </a>
         <div className="side-label">WORKSPACE</div>
         <nav aria-label="Main">
-          <a className="nav-item active" href="/" aria-current="page">
+          <a className={`nav-item ${page === 'dashboard' ? 'active' : ''}`} href="/" aria-current={page === 'dashboard' ? 'page' : undefined} onClick={event => { event.preventDefault(); navigate('/') }}>
             <span className="nav-symbol">▦</span>Overview<span className="nav-dot" />
           </a>
-          <button className="nav-item" disabled title="Available after Gate 0">
-            <span className="nav-symbol">≋</span>Models<span className="soon">SOON</span>
-          </button>
+          <a className={`nav-item ${page === 'models' ? 'active' : ''}`} href="/models" aria-current={page === 'models' ? 'page' : undefined} onClick={event => { event.preventDefault(); navigate('/models') }}>
+            <span className="nav-symbol">≋</span>Models
+          </a>
           <button className="nav-item" disabled title="Available after Gate 0">
             <span className="nav-symbol">ⓘ</span>About<span className="soon">SOON</span>
           </button>
@@ -155,7 +252,7 @@ export default function App() {
       <div className="main-shell">
         <header className="topbar">
           <div className="breadcrumb">
-            Workspace <span>/</span><strong>Overview</strong>
+            Workspace <span>/</span><strong>{page === 'models' ? 'Models' : 'Overview'}</strong>
           </div>
           <div className="topbar-status">
             <span className="local-indicator" /> LOCAL RUNTIME<span className="divider" />
@@ -168,14 +265,16 @@ export default function App() {
             <div>
               <div className="eyebrow">NETWORK EARLY-WARNING CONSOLE</div>
               <h1>
-                Test-period overview<span className="heading-dot" />
+                {page === 'models' ? 'Model comparison' : 'Test-period overview'}<span className="heading-dot" />
               </h1>
-              <p>One-window-ahead risk scoring. Observable traffic in, next-window risk out.</p>
+              <p>{page === 'models' ? 'Compare test-period risk scoring against the persistence diagnostic and deployable baselines.' : 'One-window-ahead risk scoring. Observable traffic in, next-window risk out.'}</p>
             </div>
             <span className="period-tag">TEST SPLIT</span>
           </div>
 
-          {!data && !dashboardError ? (
+          {page === 'models' ? (
+            <ModelsPage metrics={data?.metrics ?? null} loading={!data && !dashboardError} error={dashboardError} onRetry={retryDashboard} />
+          ) : !data && !dashboardError ? (
             <div className="state-panel" role="status">
               <span className="loading-mark" />Loading local evaluation…
             </div>
