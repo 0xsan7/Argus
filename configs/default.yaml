@@ -1,0 +1,6 @@
+window_seconds: 1
+lookback_windows: 5
+min_malicious_flows: 1
+max_gap_windows: 60
+random_seed: 42
+default_model: rf

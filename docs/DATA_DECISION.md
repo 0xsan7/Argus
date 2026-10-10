@@ -39,7 +39,10 @@ To address the lack of class transitions (attack onsets), `WINDOW_SECONDS` was p
 |             | Val   | 1,728   | 1,720    | 8        | 5 (FLAG)|
 |             | Test  | 3,456   | 3,397    | 59       | 1 (FLAG)|
 
-**Decision**: 2 seconds is selected as the primary window size. It is the smallest-change (closest to 10s) window size that passes the requirement of having positive/negative target windows in all splits and >10 onsets in both validation and test sets.
+**Decision**: 1 second is selected as the primary window size. While 2 seconds passes the operational minimum, the 1-second window provides substantially more onsets (1,671 / 763 / 1,703 in train / val / test, compared to 86 / 43 / 107 at 2s), ensuring onset recall can be effectively trained and measured. 
+
+*Caveat 1*: The window choice used label counts from all splits including test, but no model was trained or evaluated during this selection.
+*Caveat 2*: The test positive rate (88.6%) is far above train (about 33%), indicating that the test period is attack-dominated.
 
 ## Attribution Amendment
 
@@ -47,4 +50,4 @@ To address the lack of class transitions (attack onsets), `WINDOW_SECONDS` was p
 
 ## Final Evaluation
 
-**PASS.** With the window size amended to 2 seconds and the Moustafa & Slay (2015) citation added, the primary dataset satisfies all hard requirements in PRD Section 3.2.
+**PASS.** With the window size amended to 1 second and the Moustafa & Slay (2015) citation added, the primary dataset satisfies all hard requirements in PRD Section 3.2.
