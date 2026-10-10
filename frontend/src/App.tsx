@@ -23,6 +23,8 @@ const percent = (value: number) => `${(value * 100).toFixed(1)}%`
 
 export default function App() {
   const [data, setData] = useState<DashboardData | null>(null)
+  const [dashboardError, setDashboardError] = useState<string | null>(null)
+  const [dashboardAttempt, setDashboardAttempt] = useState(0)
   const [selectedWindowId, setSelectedWindowId] = useState<number | null>(null)
   const [windowDetail, setWindowDetail] = useState<WindowDetail | null>(null)
   const [windowError, setWindowError] = useState<string | null>(null)
@@ -36,8 +38,11 @@ export default function App() {
     const controller = new AbortController()
     const get = async <T,>(path: string): Promise<T> => {
       const response = await fetch(path, { signal: controller.signal })
+      if (!response.ok) throw new Error(`The local service returned status ${response.status}.`)
       return response.json()
     }
+    setData(null)
+    setDashboardError(null)
     Promise.all([
       get<Health>('/api/health'),
       get<Meta>('/api/meta'),
@@ -45,9 +50,13 @@ export default function App() {
       get<Metrics>('/api/metrics'),
     ]).then(([health, meta, windows, metrics]) => {
       if (!controller.signal.aborted) setData({ health, meta, windows, metrics })
+    }).catch(() => {
+      if (!controller.signal.aborted) setDashboardError('Could not load the local evaluation. Check that the Argus API is running, then try again.')
     })
     return () => controller.abort()
-  }, [])
+  }, [dashboardAttempt])
+
+  const retryDashboard = () => setDashboardAttempt(attempt => attempt + 1)
 
   const inspectWindow = async (id: number) => {
     setSelectedWindowId(id)
@@ -69,8 +78,8 @@ export default function App() {
       }
       const json = await res.json()
       setWindowDetail(json)
-    } catch (err: unknown) {
-      setWindowError(err instanceof Error ? err.message : 'Unknown network error')
+    } catch {
+      setWindowError('Could not load this window. Check that the Argus API is running, then try again.')
     } finally {
       setLoadingWindow(false)
     }
@@ -92,8 +101,8 @@ export default function App() {
       }
       const json: AnalystNote = await res.json()
       setNote(json)
-    } catch (err: unknown) {
-      setNoteError(err instanceof Error ? err.message : 'Failed to connect to the analyst note service')
+    } catch {
+      setNoteError('Could not generate the analyst note. Check that the local service is available, then try again.')
     } finally {
       setLoadingNote(false)
     }
@@ -166,9 +175,15 @@ export default function App() {
             <span className="period-tag">TEST SPLIT</span>
           </div>
 
-          {!data ? (
+          {!data && !dashboardError ? (
             <div className="state-panel" role="status">
               <span className="loading-mark" />Loading local evaluation…
+            </div>
+          ) : dashboardError ? (
+            <div className="state-panel" role="alert">
+              <strong>Evaluation unavailable</strong>
+              <p>{dashboardError}</p>
+              <button className="inspect-btn" onClick={retryDashboard}>Retry loading dashboard</button>
             </div>
           ) : (
             <>
@@ -185,7 +200,7 @@ export default function App() {
                 </div>
               )}
 
-              <section className="kpi-grid" aria-label="Test-period indicators">
+              {data && <section className="kpi-grid" aria-label="Test-period indicators">
                 <Kpi label="Test windows" value={String(data.metrics.test_windows)} caption="Chronological test partition" />
                 <Kpi
                   label="Flagged windows"
@@ -201,9 +216,14 @@ export default function App() {
                   caption={`${data.metrics.attack_onset_windows} attack-onset target windows`}
                   evaluation
                 />
-              </section>
+              </section>}
 
-              <section className="timeline-panel" aria-labelledby="timeline-title">
+              {data && data.windows.length === 0 ? (
+                <div className="state-panel" role="status">
+                  <strong>No test-period windows available</strong>
+                  <p>The API returned no windows for the test split. Check the selected artifacts or fixture data.</p>
+                </div>
+              ) : data && <section className="timeline-panel" aria-labelledby="timeline-title">
                 <div className="panel-heading">
                   <div>
                     <div className="eyebrow">01 / RISK TIMELINE</div>
@@ -332,9 +352,9 @@ export default function App() {
                   </span>
                   <span>Click flagged points or use Quick Inspect below</span>
                 </div>
-              </section>
+              </section>}
 
-              <section className="context-grid" aria-label="Experiment context">
+              {data && data.windows.length > 0 && <section className="context-grid" aria-label="Experiment context">
                 <div className="context-block">
                   <div className="eyebrow">02 / TEMPORAL CONTRACT</div>
                   <h3>Observe now. Score the next window.</h3>
@@ -353,14 +373,14 @@ export default function App() {
                     <strong>Baseline context</strong>Current-window logistic regression is deployable. Oracle persistence uses current ground truth and is non-deployable. Comparison page follows Gate 0.
                   </div>
                 </div>
-              </section>
+              </section>}
 
-              <div className="run-strip">
+              {data && data.windows.length > 0 && <div className="run-strip">
                 <span>RUN <strong>{data.meta.run_id}</strong></span>
                 <span>WINDOW <strong>{data.meta.window_seconds}s</strong></span>
                 <span>LOOKBACK <strong>{data.meta.lookback_windows} windows</strong></span>
                 <span>{fixture ? 'FIXTURE DATA · NOT LIVE TRAFFIC' : 'BENCHMARK DATA · NOT LIVE TRAFFIC'}</span>
-              </div>
+              </div>}
             </>
           )}
 
@@ -397,6 +417,9 @@ export default function App() {
               <div style={{ padding: '20px', background: '#241a1a', border: '1px solid #5a3030', borderRadius: 6, color: '#f5a6a6' }}>
                 <strong style={{ display: 'block', marginBottom: 6 }}>Notice</strong>
                 {windowError}
+                <button className="inspect-btn" style={{ display: 'block', marginTop: 12 }} onClick={() => inspectWindow(selectedWindowId)}>
+                  Retry loading window
+                </button>
               </div>
             ) : windowDetail ? (
               <div>
