@@ -89,4 +89,14 @@ h1, h2, h3, p { margin: 0; }h1 { font-size: 27px; font-weight: 550; letter-spaci
 .chart-metric-select { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 10px; }
 .chart-metric-select select { padding: 6px 9px; border: 1px solid var(--border); border-radius: 4px; background: #111a16; color: var(--text); }
 .comparison-chart { min-height: 300px; padding: 10px 15px 14px; }
+.about-page { display: grid; gap: 16px; }
+.about-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.about-card { min-width: 0; padding: 19px 20px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
+.about-card h2 { margin: 5px 0 11px; }
+.about-card p, .about-card li { color: #c0cec6; font-size: 11px; line-height: 1.75; }
+.about-card p + p { margin-top: 9px; }
+.about-card ul { margin: 0; padding-left: 18px; }
+.about-card li + li { margin-top: 5px; }
+.dataset-citation { color: var(--text) !important; }
 @media (max-width: 560px) { .models-panel-heading { padding: 13px; align-items: flex-start; }.metrics-table th, .metrics-table td { padding: 10px 11px; }.comparison-summary { padding: 14px; }.chart-metric-select { align-items: flex-start; flex-direction: column; gap: 4px; } }
+@media (max-width: 800px) { .about-grid { grid-template-columns: 1fr; } }

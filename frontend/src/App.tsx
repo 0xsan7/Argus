@@ -106,8 +106,28 @@ function ModelsPage({ metrics, loading, error, onRetry }: { metrics: Metrics | n
   )
 }
 
+function AboutPage({ meta, loading, error, onRetry, fixture }: { meta: Meta | null; loading: boolean; error: string | null; onRetry: () => void; fixture: boolean }) {
+  if (loading) return <div className="state-panel" role="status"><span className="loading-mark" />Loading experiment details…</div>
+  if (error || !meta) return <div className="state-panel" role="alert"><strong>Experiment details unavailable</strong><p>{error ?? 'The local evaluation metadata is unavailable.'}</p><button className="inspect-btn" onClick={onRetry}>Retry loading About</button></div>
+
+  return (
+    <div className="about-page">
+      {fixture && <div className="fixture-banner" role="note"><strong>Fixture mode is illustrative; it contains no UNSW-NB15 benchmark results.</strong></div>}
+      <section className="about-grid" aria-label="About Argus">
+        <article className="about-card"><div className="eyebrow">01 / PURPOSE</div><h2>Problem</h2><p>Security teams need time to inspect network alerts. Argus explores whether aggregated flow telemetry can identify elevated risk in the next short time window.</p></article>
+        <article className="about-card"><div className="eyebrow">02 / APPROACH</div><h2>Method</h2><p>Argus aggregates network flows into {meta.window_seconds}-second windows and scores whether the following window contains malicious activity. It reports a risk score, not a calibrated probability.</p><p>Full-flow features become usable at the documented observation boundary: {meta.observation_policy}</p></article>
+        <article className="about-card"><div className="eyebrow">03 / SOURCE</div><h2>Dataset citation</h2><p className="dataset-citation">Moustafa, Nour, and Jill Slay. “UNSW-NB15: a comprehensive data set for network intrusion detection systems (UNSW-NB15 network data set).” 2015 Military Communications and Information Systems Conference (MilCIS). IEEE, 2015.</p><p>Dataset: UNSW-NB15. Benchmark captures are not live production traffic.</p></article>
+        <article className="about-card"><div className="eyebrow">04 / EVALUATION</div><h2>Chronological split</h2><p>Eligible target windows are ordered by time and divided into 70% training, 10% validation, and 20% test partitions. Thresholds are selected on validation data; reported test metrics use the held-out final period.</p><p>Window duration in the loaded metadata: {meta.window_seconds} seconds. Fixture mode uses illustrative metadata.</p></article>
+        <article className="about-card"><div className="eyebrow">05 / LIMITS</div><h2>Limitations</h2><ul><li>The UNSW-NB15 test partition is attack-dense: 88.6% positive, compared with about 33% in training.</li><li>This is one public benchmark capture; results do not establish performance on other networks or unseen attack families.</li><li>Early warning refers to the next window only. Overall recall and attack-onset recall describe different outcomes.</li><li>Public dataset labels can be uncertain. Stage or ATT&amp;CK context is a retrospective lookup from evaluation labels, never a model prediction.</li><li>Oracle persistence uses current-window ground truth and is non-deployable. Gemma only drafts analyst notes from operational outputs and does not affect risk scores.</li></ul></article>
+        <article className="about-card"><div className="eyebrow">06 / CLAIMS</div><h2>Claims policy</h2><p>Describe Argus as a one-window-ahead network risk-scoring experiment evaluated chronologically on benchmark data. Say “risk score,” not “probability.” State onset recall separately when discussing early warning.</p><p>Argus is a local benchmark-data prototype, not a production intrusion detection system. Do not claim live detection, long-horizon forecasting, unseen-attack generalization, or predicted ATT&amp;CK tactics.</p></article>
+      </section>
+    </div>
+  )
+}
+
 export default function App() {
-  const [page, setPage] = useState<'dashboard' | 'models'>(() => window.location.pathname === '/models' ? 'models' : 'dashboard')
+  const routePage = () => window.location.pathname === '/models' ? 'models' : window.location.pathname === '/about' ? 'about' : 'dashboard'
+  const [page, setPage] = useState<'dashboard' | 'models' | 'about'>(routePage)
   const [data, setData] = useState<DashboardData | null>(null)
   const [dashboardError, setDashboardError] = useState<string | null>(null)
   const [dashboardAttempt, setDashboardAttempt] = useState(0)
@@ -121,14 +141,14 @@ export default function App() {
   const [noteError, setNoteError] = useState<string | null>(null)
 
   useEffect(() => {
-    const onPopState = () => setPage(window.location.pathname === '/models' ? 'models' : 'dashboard')
+    const onPopState = () => setPage(routePage())
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
-  const navigate = (path: '/' | '/models') => {
+  const navigate = (path: '/' | '/models' | '/about') => {
     window.history.pushState({}, '', path)
-    setPage(path === '/models' ? 'models' : 'dashboard')
+    setPage(path === '/models' ? 'models' : path === '/about' ? 'about' : 'dashboard')
   }
 
   useEffect(() => {
@@ -233,9 +253,9 @@ export default function App() {
           <a className={`nav-item ${page === 'models' ? 'active' : ''}`} href="/models" aria-current={page === 'models' ? 'page' : undefined} onClick={event => { event.preventDefault(); navigate('/models') }}>
             <span className="nav-symbol">≋</span>Models
           </a>
-          <button className="nav-item" disabled title="Available after Gate 0">
-            <span className="nav-symbol">ⓘ</span>About<span className="soon">SOON</span>
-          </button>
+          <a className={`nav-item ${page === 'about' ? 'active' : ''}`} href="/about" aria-current={page === 'about' ? 'page' : undefined} onClick={event => { event.preventDefault(); navigate('/about') }}>
+            <span className="nav-symbol">ⓘ</span>About
+          </a>
         </nav>
         <div className="sidebar-bottom">
           <span className="local-indicator" /> LOCAL WORKSPACE
@@ -244,7 +264,7 @@ export default function App() {
             Benchmark-data prototype.
           </p>
           <div className="sidebar-version">
-            ARGUS / GATE 0<span>v0.1</span>
+            ARGUS / LOCAL CONSOLE<span>v0.1</span>
           </div>
         </div>
       </aside>
@@ -252,7 +272,7 @@ export default function App() {
       <div className="main-shell">
         <header className="topbar">
           <div className="breadcrumb">
-            Workspace <span>/</span><strong>{page === 'models' ? 'Models' : 'Overview'}</strong>
+            Workspace <span>/</span><strong>{page === 'models' ? 'Models' : page === 'about' ? 'About' : 'Overview'}</strong>
           </div>
           <div className="topbar-status">
             <span className="local-indicator" /> LOCAL RUNTIME<span className="divider" />
@@ -265,15 +285,17 @@ export default function App() {
             <div>
               <div className="eyebrow">NETWORK EARLY-WARNING CONSOLE</div>
               <h1>
-                {page === 'models' ? 'Model comparison' : 'Test-period overview'}<span className="heading-dot" />
+                {page === 'models' ? 'Model comparison' : page === 'about' ? 'About Argus' : 'Test-period overview'}<span className="heading-dot" />
               </h1>
-              <p>{page === 'models' ? 'Compare test-period risk scoring against the persistence diagnostic and deployable baselines.' : 'One-window-ahead risk scoring. Observable traffic in, next-window risk out.'}</p>
+              <p>{page === 'models' ? 'Compare test-period risk scoring against the persistence diagnostic and deployable baselines.' : page === 'about' ? 'Experiment method, benchmark source, limitations, and claims policy.' : 'One-window-ahead risk scoring. Observable traffic in, next-window risk out.'}</p>
             </div>
-            <span className="period-tag">TEST SPLIT</span>
+            <span className="period-tag">{page === 'about' ? 'METHOD & CLAIMS' : 'TEST SPLIT'}</span>
           </div>
 
           {page === 'models' ? (
             <ModelsPage metrics={data?.metrics ?? null} loading={!data && !dashboardError} error={dashboardError} onRetry={retryDashboard} />
+          ) : page === 'about' ? (
+            <AboutPage meta={data?.meta ?? null} loading={!data && !dashboardError} error={dashboardError} onRetry={retryDashboard} fixture={fixture ?? false} />
           ) : !data && !dashboardError ? (
             <div className="state-panel" role="status">
               <span className="loading-mark" />Loading local evaluation…
@@ -469,7 +491,7 @@ export default function App() {
                   <h3>Onset recall is not overall recall.</h3>
                   <p>Onset means a benign input window followed by a malicious target window. Continuation alone is not early warning.</p>
                   <div className="baseline-note">
-                    <strong>Baseline context</strong>Current-window logistic regression is deployable. Oracle persistence uses current ground truth and is non-deployable. Comparison page follows Gate 0.
+                    <strong>Baseline context</strong>Current-window logistic regression is deployable. Oracle persistence uses current ground truth and is non-deployable. Compare model metrics on the Models page.
                   </div>
                 </div>
               </section>}
