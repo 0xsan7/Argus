@@ -6,6 +6,9 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from pathlib import Path
+from backend.app.services.note_prompt import build_prompt
+from backend.app.services.gemma_client import generate_note, build_template_note
+from backend.app.services.notes_cache import get_cached_note, save_cached_note
 
 LIGHT_FIELDS = {
     "id", "sequence_id", "start_ts", "end_ts", "risk", "flagged",
@@ -183,6 +186,63 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
             if w["id"] == window_id_int:
                 return w
         return JSONResponse(status_code=404, content={"error": "Not found"})
+
+
+    @app.post("/api/windows/{window_id}/note")
+    def create_window_note(window_id: str):
+        err = require_artifacts()
+        if err: return err
+        
+        try:
+            window_id_int = int(window_id)
+        except ValueError:
+            return JSONResponse(status_code=422, content={"error": "Invalid id"})
+            
+        timeline = get_file("timeline")
+        window = None
+        for w in timeline.get("windows", []):
+            if w["id"] == window_id_int:
+                window = w
+                break
+                
+        if window is None:
+            return JSONResponse(status_code=404, content={"error": "Not found"})
+            
+        model_name = os.environ.get("OLLAMA_MODEL", "gemma4:e2b-mlx")
+        
+        # Check cache
+        cached = get_cached_note(window_id_int, model_name)
+        if cached:
+            resp = dict(cached)
+            resp["window_id"] = window_id_int
+            if "source" not in resp:
+                resp["source"] = "gemma"
+            if "model" not in resp:
+                resp["model"] = model_name
+            return resp
+            
+        prompt = build_prompt(window)
+        note = generate_note(prompt)
+        
+        if note and isinstance(note, dict) and "threat_summary" in note:
+            note["source"] = "gemma"
+            note["model"] = model_name
+            save_cached_note(window_id_int, model_name, note)
+            
+            resp = dict(note)
+            resp["window_id"] = window_id_int
+            return resp
+            
+        # Fallback
+        stage = window.get("evaluation_stage")
+        top_features = window.get("top_features", [])
+        template_note = build_template_note(top_features, stage)
+        
+        template_note["model"] = None
+        
+        resp = dict(template_note)
+        resp["window_id"] = window_id_int
+        return resp
 
     @app.get("/api/metrics")
     def get_metrics():
