@@ -53,13 +53,14 @@ def test_note_endpoint_ollama_stopped_fallback(mock_generate, mock_cache_path):
 @patch("backend.app.main.generate_note")
 def test_note_endpoint_no_ground_truth_in_fallback(mock_generate, mock_cache_path):
     mock_generate.return_value = None
-    # We will patch the json.load to inject our malicious window
     original_load = json.load
     def mocked_load(f, *args, **kwargs):
         data = original_load(f, *args, **kwargs)
         if isinstance(data, dict) and "windows" in data:
             data["windows"].append({
                 "id": 999,
+                "truth_now": 1,
+                "truth_next": 1,
                 "evaluation_stage": "Exploitation",
                 "evaluation_attack_category": "DoS",
                 "top_features": [{"name": "dur", "value": 1.0}]
@@ -74,6 +75,10 @@ def test_note_endpoint_no_ground_truth_in_fallback(mock_generate, mock_cache_pat
         note_str = str(data)
         assert "Exploitation" not in note_str
         assert "DoS" not in note_str
+        assert "truth_now" not in note_str
+        assert "truth_next" not in note_str
+        assert "evaluation_stage" not in note_str
+        assert "evaluation_attack_category" not in note_str
 
 
 @patch("backend.app.services.gemma_client.urllib.request.urlopen")

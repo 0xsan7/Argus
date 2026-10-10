@@ -376,8 +376,15 @@ export default function App() {
         <div className="window-modal-backdrop" onClick={() => setSelectedWindowId(null)}>
           <div className="window-modal" onClick={e => e.stopPropagation()}>
             <div className="window-modal-header">
-              <div className="window-modal-title">
-                Window #{selectedWindowId} Inspection
+              <div>
+                <div className="window-modal-title">
+                  Window #{selectedWindowId} Inspection
+                </div>
+                {windowDetail?.evaluation_stage && (
+                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
+                    Stage: <span style={{ color: 'var(--truth)' }}>{windowDetail.evaluation_stage}</span> (dataset label, evaluation only)
+                  </div>
+                )}
               </div>
               <button className="close-btn" onClick={() => setSelectedWindowId(null)}>✕ Close</button>
             </div>

@@ -28,7 +28,7 @@ def generate_note(prompt: str) -> dict | None:
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
         return None
 
-def build_template_note(top_features: list, stage: str | None) -> dict:
+def build_template_note(top_features: list, stage: str | None = None) -> dict:
     """Fallback template builder when Ollama is unavailable."""
     feature_names = [f.get("name", "unknown") for f in top_features] if top_features else []
     
@@ -37,8 +37,6 @@ def build_template_note(top_features: list, stage: str | None) -> dict:
         summary = f"Flagged primarily due to features: {', '.join(feature_names[:3])}."
         
     suspicious = "Traffic patterns deviated from the expected baseline."
-    if stage:
-        suspicious += f" Matches characteristics of stage: {stage}."
 
     return {
         "source": "template",
