@@ -7,13 +7,30 @@ import {
   YAxis,
   Tooltip,
   ReferenceLine,
-  ReferenceArea,
+  usePlotArea,
+  useXAxisScale,
   BarChart,
   Bar,
   CartesianGrid,
 } from 'recharts'
 import type { AnalystNote, DashboardData, Health, Meta, Metrics, ModelMetrics, ModelName, TimelineWindow, WindowDetail } from './types'
-import { chartSeries, selectModelTimeline, timelinePlotPoints } from './timeline'
+import { chartSeries, selectModelTimeline, timelinePlotPoints, type TruthInterval } from './timeline'
+
+// One SVG path avoids thousands of ReferenceArea registrations for full captures.
+function GroundTruthBands({ intervals }: { intervals: TruthInterval[] }) {
+  const plot = usePlotArea()
+  const scale = useXAxisScale()
+  if (!plot || !scale) return null
+  const d = intervals.map(interval => {
+    const start = scale(interval.start)
+    const end = scale(interval.end)
+    if (start === undefined || end === undefined) return ''
+    const left = Math.max(plot.x, start)
+    const right = Math.min(plot.x + plot.width, end)
+    return right > left ? `M${left},${plot.y}h${right - left}v${plot.height}h${left - right}Z` : ''
+  }).join(' ')
+  return <path className="ground-truth-bands" d={d} fill="#615b77" fillOpacity={0.25} pointerEvents="none" />
+}
 
 const modelNames = {
   rf: 'Random Forest',
@@ -249,7 +266,7 @@ export default function App() {
   const selectedModelMetrics = data?.metrics.models.find(model => model.name === selectedModel)
   const selectedThreshold = selectedModel === 'oracle_persistence'
     ? 0.5
-    : selectedModelMetrics?.threshold ?? (data?.meta.default_model === selectedModel ? data.meta.default_threshold : undefined)
+    : data?.meta.default_model === selectedModel ? data.meta.default_threshold : selectedModelMetrics?.threshold ?? undefined
   const selectedTimeline = data && selectedThreshold !== undefined
     ? selectModelTimeline(data.windows, selectedModel, selectedThreshold, data.meta.default_model)
     : { available: false, windows: [] as TimelineWindow[] }
@@ -389,7 +406,7 @@ export default function App() {
 
                 <div className="chart-legend">
                   <span><i className="legend-line" />Risk score</span>
-                  <span><i className="legend-point" />Flagged window</span>
+                  <span><i className="legend-point" style={{ background: '#f87171' }} />Flagged window</span>
                   <span><i className="legend-threshold" />{selectedModel === 'oracle_persistence' ? 'Diagnostic boundary' : 'Threshold'} {selectedThreshold?.toFixed(2) ?? 'unavailable'}</span>
                   <span className="evaluation-legend">
                     <i className="legend-truth" />Evaluation ground truth
@@ -401,14 +418,17 @@ export default function App() {
                     <strong>{selectedThreshold === undefined ? 'Model threshold unavailable' : `${modelNames[selectedModel]} scores unavailable`}</strong>
                     <p>The timeline response does not include per-window scores for this model. Choose the default model or update the local API response to include risk_by_model.</p>
                   </div>
-                ) : <div className="chart-container">
-                  <ResponsiveContainer width="100%" height={260}>
+                ) : <div className="chart-container" style={{ height: 360, minHeight: 300 }}>
+                  <ResponsiveContainer width="100%" height={340}>
                     <LineChart data={chartPoints} margin={{ top: 10, right: 20, bottom: 25, left: 0 }}>
                       <XAxis
                         dataKey="targetStart"
+                        type="number"
+                        domain={['dataMin', chartPoints.at(-1)?.targetEnd ?? 'dataMax']}
+                        tickFormatter={value => new Date(Number(value) * 1000).toISOString().slice(11, 19)}
                         stroke="#5c6b63"
                         tick={{ fill: '#99aba0', fontSize: 10 }}
-                        label={{ value: 'Target interval start · seconds', position: 'insideBottom', offset: -15, fill: '#99aba0', fontSize: 10 }}
+                        label={{ value: 'Target interval start · UTC', position: 'insideBottom', offset: -15, fill: '#99aba0', fontSize: 10 }}
                       />
                       <YAxis
                         domain={[0, 1]}
@@ -430,23 +450,12 @@ export default function App() {
                           )
                         }}
                       />
+                      <GroundTruthBands intervals={truthIntervals} />
                       <ReferenceLine
                         y={selectedThreshold ?? data.meta.default_threshold}
                         stroke="var(--amber)"
                         strokeDasharray="3 3"
                       />
-                      {truthIntervals.map((t, idx) => (
-                        <ReferenceArea
-                          key={idx}
-                          x1={t.start}
-                          x2={t.end}
-                          y1={0}
-                          y2={1}
-                          fill="#615b77"
-                          fillOpacity={0.25}
-                          stroke="#a59ab5"
-                        />
-                      ))}
                       <Line
                         type="monotone"
                         dataKey="risk"
@@ -462,8 +471,8 @@ export default function App() {
                               key={`dot-${id}`}
                               cx={props.cx}
                               cy={props.cy}
-                              r={4}
-                              fill="var(--amber)"
+                              r={chartWindows.length > 1000 ? 1.5 : 4}
+                              fill="#f87171"
                               className="flagged-point"
                               style={{ cursor: 'pointer' }}
                               onClick={() => inspectWindow(id)}

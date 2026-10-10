@@ -118,3 +118,27 @@ test('Models and About errors are readable', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Retry loading About' })).toBeVisible()
   await expect(page.locator('body')).not.toContainText('private error')
 })
+
+test('full real timeline renders without thousands of reference-area registrations', async ({ page }) => {
+  const { readFileSync } = await import('node:fs')
+  const timeline = JSON.parse(readFileSync('../artifacts/timeline.json', 'utf8'))
+  const metrics = JSON.parse(readFileSync('../artifacts/metrics.json', 'utf8'))
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.route('**/api/health', route => route.fulfill({ json: { ok: true, artifacts: true, ollama: false, mode: 'artifacts' } }))
+  await page.route('**/api/meta', route => route.fulfill({ json: timeline.meta }))
+  await page.route('**/api/metrics', route => route.fulfill({ json: metrics }))
+  await page.route('**/api/timeline?split=test', route => route.fulfill({ json: timeline.windows }))
+  await page.goto('/')
+  const line = page.locator('path.recharts-line-curve')
+  await expect(line).toBeVisible({ timeout: 20000 })
+  const path = await line.getAttribute('d') ?? ''
+  expect((path.match(/[MLC]/g) ?? []).length).toBe(timeline.windows.length)
+  expect((path.match(/M/g) ?? []).length).toBeGreaterThan(1)
+  expect(await page.locator('.chart-container').evaluate(element => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(300)
+  await expect(page.locator('.flagged-point')).toHaveCount(timeline.windows.filter((window: { risk: number }) => window.risk >= timeline.meta.default_threshold).length)
+  await expect(page.locator('.flagged-point').first()).toHaveAttribute('fill', '#f87171')
+  await expect(page.locator('.ground-truth-bands')).toHaveCount(1)
+  await expect(page.locator('.recharts-reference-area')).toHaveCount(0)
+  expect(errors).toEqual([])
+})

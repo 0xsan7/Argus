@@ -77,10 +77,9 @@ export function chartSeries(windows: TimelineWindowInput[], windowSeconds: numbe
     currentSeries.points.push(point)
 
     if (w.truth_next === 1) {
-      currentSeries.truth.push({
-        start: w.end_ts,
-        end: w.end_ts + windowSeconds,
-      })
+      const previous = currentSeries.truth.at(-1)
+      if (previous?.end === point.targetStart) previous.end = point.targetEnd
+      else currentSeries.truth.push({ start: point.targetStart, end: point.targetEnd })
     }
 
     prevWindow = w
