@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import precision_recall_curve
 
@@ -66,6 +67,12 @@ def main():
     lr_lag.fit(X_train_all, y_train)
     val_probs_lag = lr_lag.predict_proba(X_val_all)[:, 1]
     thresholds['lr_lag'] = maximize_f1_threshold(y_val, val_probs_lag)
+    
+    print("Training rf...")
+    rf = RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced', n_jobs=-1)
+    rf.fit(X_train_all_raw, y_train)
+    val_probs_rf = rf.predict_proba(X_val_all_raw)[:, 1]
+    thresholds['rf'] = maximize_f1_threshold(y_val, val_probs_rf)
     
     Path("configs").mkdir(exist_ok=True)
     with open("configs/thresholds.yaml", "w") as f:
