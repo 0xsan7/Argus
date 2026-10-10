@@ -1,0 +1,4 @@
+window_seconds: 1
+lookback_windows: 1
+min_malicious_flows: 1
+max_gap_windows: 60
