@@ -20,6 +20,13 @@ if len(token) < 32:
 os.environ['ARGUS_API_TOKEN'] = token
 os.environ['USE_FIXTURES'] = '0'
 os.environ['NOTES_CACHE_PATH'] = str(runtime / 'cloudflare-notes-cache.json')
+os.environ['ARGUS_CORS_ORIGINS'] = ''
+if '--notes-only' in sys.argv:
+    os.environ['ARGUS_NOTE_BRIDGE_ONLY'] = '1'
+    os.environ.pop('ARGUS_NOTE_ORIGIN', None)
+    os.environ.pop('ARGUS_NOTE_TOKEN', None)
+    os.environ['GEMMA_TIMEOUT_S'] = '60'
+    print('Notes-only mode: only authenticated health and benchmark-note endpoints are exposed.', flush=True)
 print('Authenticated real-data API: http://127.0.0.1:8001', flush=True)
-print('Set the Pages ARGUS_API_TOKEN secret from runtime/cloudflare-api-token.txt. The token is not printed.', flush=True)
+print('Use runtime/cloudflare-api-token.txt as the private hosted bridge token. The token is not printed.', flush=True)
 os.execv(sys.executable, [sys.executable, '-m', 'uvicorn', 'backend.app.main:app', '--host', '127.0.0.1', '--port', '8001'])

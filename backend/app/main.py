@@ -1,6 +1,7 @@
 import os
 import hmac
 import json
+import re
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -10,6 +11,7 @@ from pathlib import Path
 from backend.app.services.note_prompt import build_prompt
 from backend.app.services.gemma_client import generate_note, build_template_note, is_complete_note
 from backend.app.services.notes_cache import get_cached_note, save_cached_note
+from backend.app.services.note_bridge import NoteBridge, BridgeBusy
 
 LIGHT_FIELDS = {
     "id", "sequence_id", "start_ts", "end_ts", "risk", "flagged",
@@ -32,9 +34,15 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
     
     # Deployment token is optional for local development and required by the tunnel launcher.
     deployment_token = os.environ.get("ARGUS_API_TOKEN", "").strip()
+    notes_only = os.environ.get('ARGUS_NOTE_BRIDGE_ONLY') == '1'
+    if notes_only and not deployment_token:
+        raise ValueError('The notes-only bridge requires ARGUS_API_TOKEN.')
+    note_bridge = NoteBridge()
 
     @app.middleware("http")
     async def authenticate_deployment(request: Request, call_next):
+        if notes_only and request.url.path != '/api/health' and not re.fullmatch(r'/api/windows/\d+/note', request.url.path):
+            return JSONResponse(status_code=404, content={'error': 'Not found'})
         if deployment_token and (request.url.path == "/api" or request.url.path.startswith("/api/")):
             expected = f"Bearer {deployment_token}".encode("utf-8")
             supplied = request.headers.get("authorization", "").encode("utf-8")
@@ -202,7 +210,7 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
 
 
     @app.post("/api/windows/{window_id}/note")
-    def create_window_note(window_id: str, refresh: bool = False):
+    def create_window_note(window_id: str, request: Request, refresh: bool = False):
         err = require_artifacts()
         if err: return err
         
@@ -212,6 +220,9 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
             return JSONResponse(status_code=422, content={"error": "Invalid id"})
             
         timeline = get_file("timeline")
+        expected_run = request.headers.get('X-Argus-Run-Id')
+        if expected_run and expected_run != timeline.get('meta', {}).get('run_id'):
+            return JSONResponse(status_code=409, content={'error': 'Benchmark run does not match the note bridge.'})
         window = None
         for w in timeline.get("windows", []):
             if w["id"] == window_id_int:
@@ -223,6 +234,17 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
             
         model_name = os.environ.get("OLLAMA_MODEL", "gemma4:e2b-mlx")
         
+        # The hosted service asks the local bridge; its own cache must not mask bridge changes.
+        if note_bridge.configured:
+            try:
+                remote_note = note_bridge.generate(window_id_int, timeline['meta']['run_id'], refresh)
+            except BridgeBusy:
+                return JSONResponse(status_code=429, content={'error': 'Gemma is busy. Please retry shortly.'}, headers={'Retry-After': '60'})
+            if remote_note:
+                return remote_note
+            template = build_template_note(window.get('top_features', []))
+            return {**template, 'model': None, 'window_id': window_id_int}
+
         # Check cache
         cached = None if refresh else get_cached_note(window_id_int, model_name)
         if is_complete_note(cached):
