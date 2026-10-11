@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "Argus Local Console",
+  "version": "1.0.0",
+  "description": "Inspect local Argus benchmark results and analyst notes from any tab. Does not scan websites.",
+  "permissions": ["activeTab"],
+  "host_permissions": ["http://127.0.0.1/*", "http://localhost/*"],
+  "action": {"default_title": "Argus Local Console", "default_popup": "popup.html"}
+}

@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Argus Local Console</title><link rel="stylesheet" href="popup.css"></head>
+<body><header><strong>ARGUS</strong><span>LOCAL CONSOLE</span></header>
+<p id="site">Reading current tab…</p>
+<p class="notice">Historical network benchmark results. The current website is not scanned or scored. Tab information stays in this popup.</p>
+<nav><button data-page="/">Open console</button><button data-page="/models">Models</button><button data-page="/about">About</button></nav>
+<div id="status" role="status" aria-live="polite"></div><button id="retry">Refresh connection</button>
+<main id="results" hidden>
+<label for="model">Risk model</label><select id="model"><option value="rf">Random Forest</option><option value="lr_current">Current-window LR</option><option value="lr_lag">Lagged LR</option><option value="oracle_persistence">Oracle persistence (non-deployable, diagnostic only)</option></select>
+<div id="kpis" class="kpis"></div><section><h2>Test-period risk timeline</h2><div id="chart"></div><p class="muted">Blue: risk · Red: flagged · Dashed: threshold. Sequence gaps break the line.</p></section>
+<section><h2>Highest-risk flagged windows</h2><div id="inspect"></div></section>
+<section id="detail" hidden aria-live="polite"></section>
+</main><footer>Local API: 127.0.0.1:8000 · Console: 127.0.0.1:5173</footer><script type="module" src="popup.js"></script></body></html>

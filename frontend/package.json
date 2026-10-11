@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:extension": "node --test tests/extension/extension.test.mjs",
+    "test:extension:browser": "node tests/extension/browser.mjs"
   },
   "dependencies": {
     "react": "^19.1.1", "react-dom": "^19.1.1", "recharts": "^3.1.2"
