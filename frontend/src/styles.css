@@ -139,3 +139,10 @@ select:focus-visible, input:focus-visible { outline-color: var(--accent); }
 .state-panel[role="alert"] strong { color: var(--danger-text); }
 .close-btn { background: transparent; color: var(--muted); }
 input::placeholder { color: var(--muted); opacity: 1; }
+.split-details { position: relative; flex-shrink: 0; }
+.split-details summary { cursor: pointer; list-style: none; border-color: var(--accent); color: var(--accent-text); }
+.split-details summary::-webkit-details-marker { display: none; }
+.split-details[open] summary { background: var(--accent-soft); }
+.split-info { position: absolute; top: calc(100% + 8px); right: 0; z-index: 10; width: min(340px, calc(100vw - 32px)); padding: 16px; border: 1px solid var(--accent); border-radius: 4px; background: var(--panel); color: var(--text); font-size: 12px; box-shadow: 0 0 12px rgba(59,130,246,.12); }
+.split-info p { margin-top: 8px; color: var(--muted); line-height: 1.6; }
+@media (max-width: 560px) { .split-details .period-tag { display: block; margin-top: 0; } }

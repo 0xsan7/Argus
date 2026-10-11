@@ -32,3 +32,10 @@ test('fixture dashboard shows five grounded KPIs and the explicit fixture warnin
   expect(screen.getByRole('link', { name: /Models/ })).toBeEnabled()
   expect(screen.getByRole('link', { name: /About/ })).toBeEnabled()
 })
+
+test('test split control explains the available evaluation partition', async () => {
+  serve()
+  const { default: App } = await import('../src/App')
+  render(<App />)
+  expect(await screen.findByRole('button', { name: 'Test split details' })).toBeVisible()
+})

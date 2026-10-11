@@ -167,3 +167,21 @@ test('all real model mappings switch promptly and retain correct KPIs and series
   }
   expect(paths.size).toBe(4)
 })
+
+test('test split details open and close with mouse and keyboard', async ({ page }) => {
+  await page.goto('/')
+  const control = page.getByRole('button', { name: 'Test split details' })
+  const information = page.getByRole('region', { name: 'Test split information' })
+  await expect(information).not.toBeVisible()
+  await control.click()
+  await expect(information).toBeVisible()
+  await expect(information).toContainText('Training data fits the models')
+  await expect(information).toContainText('only test-period scores')
+  await control.click()
+  await expect(information).not.toBeVisible()
+  await control.focus()
+  await page.keyboard.press('Enter')
+  await expect(information).toBeVisible()
+  await page.keyboard.press('Enter')
+  await expect(information).not.toBeVisible()
+})

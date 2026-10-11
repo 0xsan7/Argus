@@ -338,7 +338,17 @@ export default function App() {
               </h1>
               <p>{page === 'models' ? 'Compare test-period risk scoring against the persistence diagnostic and deployable baselines.' : page === 'about' ? 'Experiment method, benchmark source, limitations, and claims policy.' : 'One-window-ahead risk scoring. Observable traffic in, next-window risk out.'}</p>
             </div>
-            <span className="period-tag">{page === 'about' ? 'METHOD & CLAIMS' : 'TEST SPLIT'}</span>
+            {page === 'about' ? <span className="period-tag">METHOD &amp; CLAIMS</span> : (
+              <details className="split-details">
+                <summary className="period-tag" role="button" aria-label="Test split details">TEST SPLIT <span aria-hidden="true">ⓘ</span></summary>
+                <div className="split-info" role="region" aria-label="Test split information">
+                  <strong>Held-out test partition</strong>
+                  <p>Training data fits the models. Validation data selects alert thresholds. Test data measures performance on later, unseen windows.</p>
+                  <p>{data ? `${data.windows.length.toLocaleString()} test windows are loaded.` : 'Test windows load from the local API.'} The current artifact bundle contains only test-period scores; training and validation timelines are not available here.</p>
+                  <p>Ground-truth labels are shown for evaluation only.</p>
+                </div>
+              </details>
+            )}
           </div>
 
           {page === 'models' ? (
