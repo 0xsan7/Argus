@@ -142,3 +142,28 @@ test('full real timeline renders without thousands of reference-area registratio
   await expect(page.locator('.recharts-reference-area')).toHaveCount(0)
   expect(errors).toEqual([])
 })
+
+test('all real model mappings switch promptly and retain correct KPIs and series', async ({ page }) => {
+  const { readFileSync } = await import('node:fs')
+  const timeline = JSON.parse(readFileSync('../artifacts/timeline.json', 'utf8'))
+  const metrics = JSON.parse(readFileSync('../artifacts/metrics.json', 'utf8'))
+  await page.route('**/api/health', route => route.fulfill({ json: { ok: true, artifacts: true, ollama: false, mode: 'artifacts' } }))
+  await page.route('**/api/meta', route => route.fulfill({ json: timeline.meta }))
+  await page.route('**/api/metrics', route => route.fulfill({ json: metrics }))
+  await page.route('**/api/timeline?split=test', route => route.fulfill({ json: timeline.windows }))
+  await page.goto('/')
+  await expect(page.locator('.recharts-line-curve')).toBeVisible()
+  const paths = new Set<string>()
+  const kpis = page.getByRole('region', { name: 'Test-period indicators' })
+  for (const model of ['lr_current', 'lr_lag', 'oracle_persistence', 'rf']) {
+    const metric = metrics.models.find((entry: { name: string }) => entry.name === model)
+    const threshold = model === 'oracle_persistence' ? 0.5 : metric.threshold
+    const start = Date.now()
+    await page.getByRole('combobox', { name: 'Dashboard model' }).selectOption(model)
+    await expect(kpis.locator('.kpi-value').nth(1)).toHaveText(String(timeline.windows.filter((w: { risk_by_model: Record<string, number> }) => w.risk_by_model[model] >= threshold).length))
+    await expect(kpis.locator('.kpi-value').nth(2)).toHaveText(`${(metric.precision * 100).toFixed(1)}%`)
+    expect(Date.now() - start, `${model} switch should not freeze the dashboard`).toBeLessThan(2500)
+    paths.add(await page.locator('.recharts-line-curve').getAttribute('d') ?? '')
+  }
+  expect(paths.size).toBe(4)
+})

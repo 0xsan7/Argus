@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ResponsiveContainer,
   LineChart,
@@ -267,16 +267,16 @@ export default function App() {
   const selectedThreshold = selectedModel === 'oracle_persistence'
     ? 0.5
     : data?.meta.default_model === selectedModel ? data.meta.default_threshold : selectedModelMetrics?.threshold ?? undefined
-  const selectedTimeline = data && selectedThreshold !== undefined
+  const selectedTimeline = useMemo(() => data && selectedThreshold !== undefined
     ? selectModelTimeline(data.windows, selectedModel, selectedThreshold, data.meta.default_model)
-    : { available: false, windows: [] as TimelineWindow[] }
+    : { available: false, windows: [] as TimelineWindow[] }, [data, selectedModel, selectedThreshold])
   const fixture = data?.health.mode === 'fixtures'
 
   const chartWindows = selectedTimeline.windows
-  const series = data ? chartSeries(chartWindows, data.meta.window_seconds) : []
-  const chartPoints = timelinePlotPoints(series, data?.meta.window_seconds ?? 0)
-  const truthIntervals = series.flatMap(segment => segment.truth)
-  const topFlaggedWindows = chartWindows.filter(window => window.flagged).sort((a, b) => b.risk - a.risk).slice(0, 5)
+  const series = useMemo(() => data ? chartSeries(chartWindows, data.meta.window_seconds) : [], [chartWindows, data])
+  const chartPoints = useMemo(() => timelinePlotPoints(series, data?.meta.window_seconds ?? 0), [series, data])
+  const truthIntervals = useMemo(() => series.flatMap(segment => segment.truth), [series])
+  const topFlaggedWindows = useMemo(() => chartWindows.filter(window => window.flagged).sort((a, b) => b.risk - a.risk).slice(0, 5), [chartWindows])
   const selectedDetailRisk = windowDetail?.risk_by_model?.[selectedModel] ?? (selectedModel === data?.meta.default_model ? windowDetail?.risk : undefined)
   const selectedDetailFlagged = selectedDetailRisk !== undefined && selectedThreshold !== undefined && selectedDetailRisk >= selectedThreshold
   const shapFeatures = [...(windowDetail?.top_features ?? [])].sort((a, b) => Math.abs(b.shap) - Math.abs(a.shap))
@@ -457,6 +457,7 @@ export default function App() {
                         strokeDasharray="3 3"
                       />
                       <Line
+                        key={selectedModel}
                         type="monotone"
                         dataKey="risk"
                         connectNulls={false}
