@@ -20,6 +20,23 @@ def test_note_endpoint_unknown_window():
     assert response.status_code == 404
     assert response.json() == {"error": "Not found"}
 
+@patch('backend.app.main.generate_note')
+def test_regenerate_bypasses_saved_report(mock_generate, mock_cache_path):
+    mock_get, mock_save = mock_cache_path
+    saved = {
+        'threat_summary': 'Saved report', 'why_suspicious': 'Saved reason',
+        'suggested_checks': ['Saved check'], 'caveat': 'Verify',
+        'source': 'gemma', 'model': 'gemma4:e2b-mlx',
+    }
+    mock_get.return_value = saved
+    mock_generate.return_value = {**saved, 'threat_summary': 'Fresh report'}
+    assert client.post('/api/windows/0/note').json()['threat_summary'] == 'Saved report'
+    mock_generate.assert_not_called()
+    response = client.post('/api/windows/0/note?refresh=true')
+    assert response.json()['threat_summary'] == 'Fresh report'
+    mock_generate.assert_called_once()
+    mock_save.assert_called_once()
+
 @patch("backend.app.main.generate_note")
 def test_note_endpoint_ollama_mocked_gemma(mock_generate, mock_cache_path):
     mock_get, mock_save = mock_cache_path
@@ -49,6 +66,18 @@ def test_note_endpoint_ollama_stopped_fallback(mock_generate, mock_cache_path):
     assert response.status_code == 200
     data = response.json()
     assert data["source"] == "template"
+
+@pytest.mark.parametrize('invalid', [
+    {'threat_summary': 'Missing remaining fields'},
+    {'threat_summary': 'Summary', 'why_suspicious': 'Reason', 'suggested_checks': {}, 'caveat': 'Verify'},
+    {'threat_summary': 'Summary', 'why_suspicious': '', 'suggested_checks': ['Check'], 'caveat': 'Verify'},
+])
+def test_incomplete_gemma_report_uses_complete_fallback(invalid, mock_cache_path):
+    with patch('backend.app.main.generate_note', return_value=invalid):
+        response = client.post('/api/windows/0/note')
+    data = response.json()
+    assert data['source'] == 'template'
+    assert all(data[key] for key in ['threat_summary', 'why_suspicious', 'suggested_checks', 'caveat'])
 
 @patch("backend.app.main.generate_note")
 def test_note_endpoint_no_ground_truth_in_fallback(mock_generate, mock_cache_path):

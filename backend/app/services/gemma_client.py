@@ -3,6 +3,15 @@ import json
 import urllib.request
 import urllib.error
 
+def is_complete_note(note) -> bool:
+    return (
+        isinstance(note, dict)
+        and all(isinstance(note.get(key), str) and note[key].strip() for key in ('threat_summary', 'why_suspicious', 'caveat'))
+        and isinstance(note.get('suggested_checks'), list)
+        and bool(note['suggested_checks'])
+        and all(isinstance(check, str) and check.strip() for check in note['suggested_checks'])
+    )
+
 def generate_note(prompt: str) -> dict | None:
     """Calls Ollama to generate a note."""
     model = os.environ.get("OLLAMA_MODEL", "gemma4:e2b-mlx")

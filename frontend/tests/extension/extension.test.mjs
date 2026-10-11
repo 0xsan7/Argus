@@ -2,10 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 const root = new URL('../../extension/', import.meta.url);
-test('MV3 popup only requests active tab and local API access', async () => {
+test('MV3 popup requests user-triggered page inspection and local API access', async () => {
  const m = JSON.parse(await readFile(new URL('manifest.json', root)));
  assert.equal(m.manifest_version, 3);
- assert.deepEqual(m.permissions, ['activeTab']);
+ assert.deepEqual(m.permissions, ['activeTab', 'scripting']);
  assert.deepEqual(m.host_permissions, ['http://127.0.0.1/*', 'http://localhost/*']);
  assert.equal(m.action.default_popup, 'popup.html');
 });
@@ -20,4 +20,10 @@ test('HTTP errors and disconnects become readable messages without stack traces'
  const { request } = await import(new URL('core.js', root));
  await assert.rejects(request('/meta',{}, async()=>({ok:false,status:503})), /503/);
  await assert.rejects(request('/meta',{}, async()=>{throw new Error('secret stack')}), /Start the local Argus backend/);
+});
+test('malformed analyst notes fail readably instead of showing missing fields', async()=>{
+ const {validateNote}=await import(new URL('core.js',root));
+ const note={source:'template',model:null,window_id:3,threat_summary:'Summary',why_suspicious:'Reason',suggested_checks:['Check'],caveat:'Verify'};
+ assert.equal(validateNote(note,3),note);
+ for(const invalid of [{...note,suggested_checks:{}},{...note,caveat:undefined},{...note,source:'unknown'},{...note,window_id:4}])assert.throws(()=>validateNote(invalid,3),/incomplete.*retry/i);
 });

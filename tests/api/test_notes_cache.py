@@ -3,6 +3,10 @@ import pytest
 from pathlib import Path
 from backend.app.services.notes_cache import NotesCache
 
+def test_default_note_cache_is_runtime_not_immutable_artifacts():
+    from backend.app.services.notes_cache import DEFAULT_CACHE_PATH
+    assert DEFAULT_CACHE_PATH == Path('runtime/notes_cache.json')
+
 def test_cache_missing_file_starts_empty(tmp_path: Path):
     cache_path = tmp_path / "notes_cache.json"
     cache = NotesCache(cache_path)

@@ -55,6 +55,31 @@ h1, h2, h3, p { margin: 0; }h1 { font-size: 27px; font-weight: 550; letter-spaci
 .close-btn { background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 4px; padding: 4px 8px; font-size: 12px; }
 .close-btn:hover { color: var(--text); border-color: var(--muted); }
 .window-section { margin-bottom: 18px; }
+.gemma-report-entry { display:flex; justify-content:space-between; align-items:center; gap:24px; min-width:0; max-width:100%; padding:18px 22px; margin:18px 0; background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--cyan); border-radius:6px; }
+.gemma-report-entry { flex-wrap:wrap; }
+.gemma-report-output { flex:0 0 100%; min-width:0; }
+.analyst-report { min-width:0; }
+.analyst-report-controls { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px; color:var(--muted); font-size:11px; }
+.analyst-report .note-generate-btn { padding:8px 14px; cursor:pointer; }
+.analyst-report .note-generate-btn:disabled { opacity:.7; cursor:wait; }
+.analyst-report .note-loading, .analyst-report .note-error { padding:16px; border:1px solid var(--border); border-radius:4px; font-size:12px; line-height:1.6; }
+.analyst-report .note-loading { color:var(--muted); }
+.analyst-report .note-error { color:var(--danger-text); border-color:var(--danger-border); background:var(--danger-bg); }
+.analyst-report .note-panel { padding:16px; border:1px solid var(--border); border-left:3px solid var(--cyan); border-radius:4px; background:var(--panel); overflow-wrap:anywhere; }
+.note-panel-source { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:14px; color:var(--muted); font:11px var(--mono); }
+.note-source-badge { padding:3px 9px; border:1px solid var(--border); border-radius:4px; }
+.note-source-badge.gemma { color:var(--accent-text); border-color:var(--accent); background:var(--accent-soft); }
+.analyst-report .note-panel h3 { margin:14px 0 5px; font:10px var(--mono); text-transform:uppercase; letter-spacing:1px; color:var(--muted); }
+.analyst-report .note-panel p, .analyst-report .note-panel li { color:var(--text); font-size:13px; line-height:1.65; max-width:none; }
+.analyst-report .note-panel ul { padding-left:18px; margin:0; }
+.analyst-report .note-panel li + li { margin-top:5px; }
+.analyst-report .note-panel .note-caveat { border-top:1px solid var(--border); padding-top:10px; margin-top:14px; color:var(--muted); font-size:11px; }
+.analyst-report .note-hint { color:var(--muted); font-size:12px; line-height:1.6; }
+.gemma-report-entry > div:first-child { min-width:0; flex:1; }
+.gemma-report-entry h2 { margin:5px 0 8px; }.gemma-report-entry p { max-width:650px; color:var(--muted); font-size:11px; line-height:1.6; }
+.gemma-report-actions { display:grid; gap:10px; min-width:0; flex:0 0 180px; }.gemma-report-actions label { display:grid; gap:5px; color:var(--muted); font-size:11px; }.gemma-report-actions select { background:var(--bg); border:1px solid var(--border); color:var(--text); padding:7px; border-radius:4px; }
+.gemma-report-actions button { background:var(--button); color:var(--text); padding:9px 12px; border:1px solid var(--accent); border-radius:4px; cursor:pointer; font-size:12px; }.note-loading .loading-mark { display:inline-block; width:14px; height:14px; vertical-align:middle; margin-right:6px; }
+@media(max-width:700px) { .gemma-report-entry { align-items:stretch; flex-direction:column; gap:14px; }.gemma-report-actions { flex:auto; } }
 .window-section-title { font-size: 11px; font-family: var(--mono); color: var(--muted); letter-spacing: 1px; margin-bottom: 8px; }
 .shap-bar-row { display: grid; grid-template-columns: minmax(110px, 1.25fr) minmax(100px, 2fr) 66px 72px; align-items: center; gap: 9px; margin-bottom: 8px; font-size: 10px; font-family: var(--mono); }
 .shap-bar-name { color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

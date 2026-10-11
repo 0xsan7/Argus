@@ -4,6 +4,88 @@
 
 ---
 
+## Architecture
+
+Argus separates offline model preparation from the local web runtime. The dashboard reads precomputed test-period scores through FastAPI; opening a page does not train a model or run live network inference. Ollama is optional and generates analyst notes only—it never changes a risk score.
+
+```mermaid
+flowchart TD
+    subgraph Preparation[Offline model preparation]
+        Raw[Local UNSW-NB15 flow files] --> Adapter[Normalize timestamps and capture sequences]
+        Adapter --> Features[Observable window features and lag history]
+        Features --> Split[Chronological train / validation / test split]
+        Split --> Models[Oracle persistence / current LR / lagged LR / RF]
+        Models --> Evaluation[Validation thresholds / test metrics / RF SHAP]
+        Evaluation --> Artifacts[Artifact JSON bundle]
+    end
+
+    subgraph Runtime[Local web runtime]
+        Artifacts --> API[FastAPI :8000]
+        Fixtures[Illustrative fixture JSON] --> API
+        UI[React + Recharts dashboard :5173] -->|/api through Vite proxy| API
+        API -->|Metadata, timeline, metrics, window details| UI
+        API -->|Generate analyst note| Cache[Local note cache lookup]
+        Cache -->|Cache miss| Prompt[Allowlisted telemetry prompt]
+        Prompt --> Ollama[Optional local Ollama :11434]
+        Ollama -->|Successful note| Save[Save note to local cache]
+        Ollama -->|Unavailable, timeout, or parse failure| Template[Deterministic template fallback]
+        Cache -->|Cache hit| Note[Note response with source badge]
+        Save --> Note
+        Template --> Note
+        Note --> UI
+    end
+```
+
+### Components and source map
+
+| Component | Source | Responsibility |
+|---|---|---|
+| Dataset adapter | `ml/adapters/unsw_nb15.py` | Normalize flow records, observation timestamps, labels, and sequence boundaries. |
+| Window features and split | `ml/features.py`, `ml/split.py`, `configs/default.yaml` | Aggregate observable traffic, create lag history and next-window targets, and partition chronologically. Current configuration uses 1-second windows and 5-window lookback. |
+| Training and evaluation | `ml/train.py`, `ml/evaluate.py` | Train LR and RF models, select predictive-model thresholds on validation, and compute test metrics including attack-onset recall. |
+| Artifact export | `scripts/s6_artifacts.py` | Package per-window scores, selected RF SHAP explanations, metrics, and run metadata. |
+| HTTP API | `backend/app/main.py` | Serve artifact or fixture data and handle window inspection and analyst-note requests. |
+| Analyst-note services | `backend/app/services/` | Build prompts, call local Ollama, cache successful notes, and provide template fallback. |
+| Web console | `frontend/src/App.tsx`, `frontend/src/AnalystReport.tsx`, `frontend/src/timeline.ts`, `frontend/src/types.ts` | Dashboard and model selection, sequence-aware risk timeline, inline analyst reports, window detail with SHAP and notes, Models comparison, and About page. |
+| Development proxy | `frontend/vite.config.ts` | Forward `/api` requests to `127.0.0.1:8000`; `ARGUS_API_PORT` overrides the backend port. |
+
+### Data contract and request flow
+
+The API selects `fixtures/` with `USE_FIXTURES=1` (the default) or `artifacts/` with `USE_FIXTURES=0`. Fixtures are illustrative UI data, not benchmark results. The selected bundle contains:
+
+- `timeline.json`: metadata and test windows, including default and per-model risk scores, alert flags, evaluation labels, counts, and available SHAP features.
+- `metrics.json`: per-model thresholds, precision, recall, F1, PR-AUC, false-positive rate, onset recall, latency, and confusion matrices.
+- `run_manifest.json`: run identity, dataset provenance, and configuration. Its run ID must match the timeline and metrics.
+- `stage_map.json`: optional retrospective dataset-label context.
+
+| Endpoint | Consumer and purpose |
+|---|---|
+| `GET /api/health` | Runtime mode and artifact availability; the API can start with a missing bundle. |
+| `GET /api/meta` | Dataset, window size, default model and threshold, and split metadata. |
+| `GET /api/timeline?split=test` | Lightweight window array for plotting, including `risk_by_model`. Optional `from` and `to` filters use window start timestamps. |
+| `GET /api/metrics` | Dashboard KPIs and four-model comparison. |
+| `GET /api/windows/{id}` | Full window details, counts, evaluation context, and SHAP features. |
+| `POST /api/windows/{id}/note` | Cached, Gemma-generated, or template analyst note with source metadata. |
+
+The risk chart retains all returned test windows, inserts null separators at sequence or time gaps, and draws adjacent attack periods as merged shading in one SVG layer. Changing the selected model switches scores, alert markers, threshold, and KPIs. Loading, empty, and failed requests have explicit UI states.
+
+### Runtime boundaries
+
+Model features use traffic observable by the prediction cutoff; next-window labels are evaluation targets. Oracle persistence uses the current ground-truth label and is explicitly non-deployable. Attack shading and stage context are evaluation-only. Risk scores are not calibrated probabilities.
+
+The analyst-note prompt allows only risk, feature names and values, counts, and window timestamps. Ground-truth labels and retrospective stage context are excluded. Notes use the window's default-model artifact score, independently of the dashboard selector. Successful Gemma notes are cached by window ID and Ollama model name in `runtime/notes_cache.json`; `NOTES_CACHE_PATH` overrides the location. Regeneration bypasses the saved note. Dashboard reports render directly below their generation button, independently of window-detail loading, and stalled requests have a timeout and retry state.
+
+The runtime uses local JSON files and localhost services, with no database or cloud inference service. Ollama listens at `localhost:11434`; `OLLAMA_MODEL` selects the model and `GEMMA_TIMEOUT_S` controls the timeout. Missing or invalid artifact bundles produce structured `503` responses. Ollama failures fall back to a template note.
+
+### Verification map
+
+- `tests/ml/`: feature availability, temporal leakage, sequence boundaries, and model evaluation checks.
+- `tests/schemas/`: artifact contracts and push-lock protections.
+- `tests/api/`: API responses, analyst-note generation, cache behavior, and prompt leakage guards.
+- `frontend/tests/`: UI and timeline transforms; `frontend/tests/browser/` covers responsive demo flows, request states, and full real-timeline rendering.
+
+---
+
 ## Prep vs Event Build
 
 ### 1. Prep Build (Pre-Event Skeleton & Tooling)

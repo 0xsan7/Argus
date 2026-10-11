@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-DEFAULT_CACHE_PATH = Path("artifacts/notes_cache.json")
+DEFAULT_CACHE_PATH = Path("runtime/notes_cache.json")
 
 class NotesCache:
     def __init__(self, cache_path: Path | str | None = None):

@@ -1,4 +1,5 @@
 import os
+import hmac
 import json
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,7 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from pathlib import Path
 from backend.app.services.note_prompt import build_prompt
-from backend.app.services.gemma_client import generate_note, build_template_note
+from backend.app.services.gemma_client import generate_note, build_template_note, is_complete_note
 from backend.app.services.notes_cache import get_cached_note, save_cached_note
 
 LIGHT_FIELDS = {
@@ -23,12 +24,24 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=[origin.strip() for origin in os.environ.get("ARGUS_CORS_ORIGINS", "*").split(",") if origin.strip()],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
     
+    # Deployment token is optional for local development and required by the tunnel launcher.
+    deployment_token = os.environ.get("ARGUS_API_TOKEN", "").strip()
+
+    @app.middleware("http")
+    async def authenticate_deployment(request: Request, call_next):
+        if deployment_token and (request.url.path == "/api" or request.url.path.startswith("/api/")):
+            expected = f"Bearer {deployment_token}".encode("utf-8")
+            supplied = request.headers.get("authorization", "").encode("utf-8")
+            if not hmac.compare_digest(supplied, expected):
+                return JSONResponse(status_code=401, content={"error": "Unauthorized"}, headers={"Cache-Control": "no-store"})
+        return await call_next(request)
+
     app.state.use_fixtures = use_fixtures
     
     def get_data_dir():
@@ -189,7 +202,7 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
 
 
     @app.post("/api/windows/{window_id}/note")
-    def create_window_note(window_id: str):
+    def create_window_note(window_id: str, refresh: bool = False):
         err = require_artifacts()
         if err: return err
         
@@ -211,8 +224,8 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
         model_name = os.environ.get("OLLAMA_MODEL", "gemma4:e2b-mlx")
         
         # Check cache
-        cached = get_cached_note(window_id_int, model_name)
-        if cached:
+        cached = None if refresh else get_cached_note(window_id_int, model_name)
+        if is_complete_note(cached):
             resp = dict(cached)
             resp["window_id"] = window_id_int
             if "source" not in resp:
@@ -224,7 +237,7 @@ def create_app(use_fixtures: bool | None = None, artifact_dir: Path | None = Non
         prompt = build_prompt(window)
         note = generate_note(prompt)
         
-        if note and isinstance(note, dict) and "threat_summary" in note:
+        if is_complete_note(note):
             note["source"] = "gemma"
             note["model"] = model_name
             save_cached_note(window_id_int, model_name, note)

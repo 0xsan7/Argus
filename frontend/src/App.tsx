@@ -13,7 +13,8 @@ import {
   Bar,
   CartesianGrid,
 } from 'recharts'
-import type { AnalystNote, DashboardData, Health, Meta, Metrics, ModelMetrics, ModelName, TimelineWindow, WindowDetail } from './types'
+import AnalystReport from './AnalystReport'
+import type { DashboardData, Health, Meta, Metrics, ModelMetrics, ModelName, TimelineWindow, WindowDetail } from './types'
 import { chartSeries, selectModelTimeline, timelinePlotPoints, type TruthInterval } from './timeline'
 
 // One SVG path avoids thousands of ReferenceArea registrations for full captures.
@@ -160,11 +161,8 @@ export default function App() {
   const [windowError, setWindowError] = useState<string | null>(null)
   const [loadingWindow, setLoadingWindow] = useState(false)
   const [inspectInputId, setInspectInputId] = useState('')
-  const [note, setNote] = useState<AnalystNote | null>(null)
-  const [loadingNote, setLoadingNote] = useState(false)
-  const [noteError, setNoteError] = useState<string | null>(null)
+  const [reportWindow, setReportWindow] = useState('')
   const detailRequestId = useRef(0)
-  const noteRequestId = useRef(0)
 
   useEffect(() => {
     const onPopState = () => setPage(routePage())
@@ -203,14 +201,10 @@ export default function App() {
 
   const inspectWindow = async (id: number) => {
     const requestId = ++detailRequestId.current
-    noteRequestId.current += 1
     setSelectedWindowId(id)
     setLoadingWindow(true)
     setWindowError(null)
     setWindowDetail(null)
-    setNote(null)
-    setLoadingNote(false)
-    setNoteError(null)
     try {
       const res = await fetch(`/api/windows/${id}`)
       if (requestId !== detailRequestId.current) return
@@ -231,38 +225,6 @@ export default function App() {
     }
   }
 
-  const generateNote = async (id: number) => {
-    const requestId = ++noteRequestId.current
-    setLoadingNote(true)
-    setNoteError(null)
-    setNote(null)
-    try {
-      const res = await fetch(`/api/windows/${id}/note`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-      if (requestId !== noteRequestId.current) return
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => null)
-        const serverMessage = errJson && typeof errJson === 'object' && 'error' in errJson && typeof errJson.error === 'string'
-          ? errJson.error.trim()
-          : ''
-        const containsStackTrace = /Traceback \(most recent call last\):|^\s*File .+, line \d+|^\s*at\s+.+:\d+:\d+/m.test(serverMessage)
-        const readableError = !serverMessage || containsStackTrace || serverMessage.length > 240
-          ? `Could not generate analyst note (status ${res.status}). Try again.`
-          : serverMessage
-        if (requestId === noteRequestId.current) setNoteError(readableError)
-        return
-      }
-      const json: AnalystNote = await res.json()
-      if (requestId === noteRequestId.current) setNote(json)
-    } catch {
-      if (requestId === noteRequestId.current) setNoteError('Could not generate the analyst note. Check that the local service is available, then try again.')
-    } finally {
-      if (requestId === noteRequestId.current) setLoadingNote(false)
-    }
-  }
-
   const selectedModelMetrics = data?.metrics.models.find(model => model.name === selectedModel)
   const selectedThreshold = selectedModel === 'oracle_persistence'
     ? 0.5
@@ -277,6 +239,8 @@ export default function App() {
   const chartPoints = useMemo(() => timelinePlotPoints(series, data?.meta.window_seconds ?? 0), [series, data])
   const truthIntervals = useMemo(() => series.flatMap(segment => segment.truth), [series])
   const topFlaggedWindows = useMemo(() => chartWindows.filter(window => window.flagged).sort((a, b) => b.risk - a.risk).slice(0, 5), [chartWindows])
+  const reportWindows = topFlaggedWindows.length ? topFlaggedWindows : chartWindows.slice(0, 5)
+  const reportWindowId = reportWindows.find(window => String(window.id) === reportWindow)?.id ?? reportWindows[0]?.id
   const selectedDetailRisk = windowDetail?.risk_by_model?.[selectedModel] ?? (selectedModel === data?.meta.default_model ? windowDetail?.risk : undefined)
   const selectedDetailFlagged = selectedDetailRisk !== undefined && selectedThreshold !== undefined && selectedDetailRisk >= selectedThreshold
   const shapFeatures = [...(windowDetail?.top_features ?? [])].sort((a, b) => Math.abs(b.shap) - Math.abs(a.shap))
@@ -391,6 +355,18 @@ export default function App() {
                   caption={`${data.metrics.attack_onset_windows} attack-onset target windows`}
                   evaluation
                 />
+              </section>}
+
+              {data && reportWindowId !== undefined && <section className="gemma-report-entry" aria-labelledby="gemma-report-title">
+                <div>
+                  <div className="eyebrow">LOCAL AI / ANALYST REPORTING</div>
+                  <h2 id="gemma-report-title">Gemma analyst report</h2>
+                  <p>Generate a summary, reasoning, suggested checks, and a verification caveat for a benchmark window. Uses the backend default model ({modelNames[data.meta.default_model]}); Gemma does not change risk scores. Template fallback is labeled if local Gemma is unavailable.</p>
+                </div>
+                <div className="gemma-report-actions">
+                  <label>Report window<select aria-label="Analyst report window" value={String(reportWindowId)} onChange={event => setReportWindow(event.target.value)}>{reportWindows.map(window => <option key={window.id} value={window.id}>Window #{window.id}</option>)}</select></label>
+                </div>
+                <div className="gemma-report-output"><AnalystReport key={reportWindowId} windowId={reportWindowId} buttonLabel="Generate Gemma report" /></div>
               </section>}
 
               {data && data.windows.length === 0 ? (
@@ -642,115 +618,8 @@ export default function App() {
                 </div>
 
                 <div className="window-section">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                    <div className="window-section-title" style={{ margin: 0 }}>ANALYST NOTE</div>
-                    {!loadingNote && (
-                      <button
-                        className="note-generate-btn"
-                        onClick={() => generateNote(windowDetail.id)}
-                        style={{
-                          background: 'var(--button)',
-                          color: 'var(--text)',
-                          border: 'none',
-                          padding: '6px 14px',
-                          borderRadius: 4,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {note ? 'Regenerate analyst note' : 'Generate analyst note'}
-                      </button>
-                    )}
-                  </div>
-
-                  {loadingNote && (
-                    <div className="note-loading" style={{ padding: '20px', textAlign: 'center', color: 'var(--muted)', background: 'var(--panel)', borderRadius: 4, border: '1px solid var(--border)' }}>
-                      Generating analyst note…
-                    </div>
-                  )}
-
-                  {noteError && (
-                    <div className="note-error" style={{ padding: '14px', background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', borderRadius: 4, color: 'var(--danger-text)', fontSize: 12 }}>
-                      <strong style={{ display: 'block', marginBottom: 4 }}>Error generating note</strong>
-                      <div>{noteError}</div>
-                      <button
-                        onClick={() => generateNote(windowDetail.id)}
-                        style={{
-                          marginTop: 10,
-                          background: 'transparent',
-                          border: '1px solid var(--danger-border)',
-                          color: 'var(--danger-text)',
-                          padding: '4px 10px',
-                          borderRadius: 4,
-                          cursor: 'pointer',
-                          fontSize: 11
-                        }}
-                      >
-                        Try again
-                      </button>
-                    </div>
-                  )}
-
-                  {note && (
-                    <div className="note-panel" style={{ background: 'var(--panel)', border: '1px solid var(--border)', borderLeft: '3px solid var(--cyan)', borderRadius: 4, padding: '16px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                        <span
-                          className="note-source-badge"
-                          style={{
-                            padding: '3px 9px',
-                            borderRadius: 4,
-                            fontSize: 11,
-                            fontWeight: 600,
-                            fontFamily: 'var(--mono)',
-                            background: note.source === 'gemma' ? 'var(--accent-soft)' : 'var(--surface-alt)',
-                            color: note.source === 'gemma' ? 'var(--accent-text)' : 'var(--muted)',
-                            border: `1px solid ${note.source === 'gemma' ? 'var(--accent)' : 'var(--border)'}`
-                          }}
-                        >
-                          {note.source === 'gemma' ? 'Gemma' : 'Template fallback'}
-                        </span>
-                        {note.model && (
-                          <span style={{ fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--muted)' }}>
-                            {note.model}
-                          </span>
-                        )}
-                      </div>
-
-                      <div style={{ marginBottom: 12 }}>
-                        <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
-                          Threat Summary
-                        </div>
-                        <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
-                          {note.threat_summary}
-                        </div>
-                      </div>
-
-                      <div style={{ marginBottom: 12 }}>
-                        <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
-                          Why Suspicious
-                        </div>
-                        <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
-                          {note.why_suspicious}
-                        </div>
-                      </div>
-
-                      <div style={{ marginBottom: 12 }}>
-                        <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
-                          Suggested Checks
-                        </div>
-                        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
-                          {note.suggested_checks?.map((check, idx) => (
-                            <li key={idx} style={{ marginBottom: 4 }}>{check}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic', borderTop: '1px solid var(--border)', paddingTop: 10, marginTop: 10 }}>
-                        {note.caveat}
-                      </div>
-                    </div>
-                  )}
+                  <div className="window-section-title">GEMMA ANALYST REPORT</div>
+                  <AnalystReport key={windowDetail.id} windowId={windowDetail.id} />
                 </div>
 
                 <div className="window-section">

@@ -1,7 +1,8 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import App from '../src/App'
+import AnalystReport from '../src/AnalystReport'
 
 const fixtureData = {
   health: { ok: true, artifacts: true, ollama: false, mode: 'fixtures' },
@@ -81,16 +82,16 @@ describe('Frontend Note Panel', () => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn()
   })
 
-  it('renders "Generate analyst note" button, handles loading, and displays generated note', async () => {
+  it('displays the dashboard report even when the window-detail request would fail, and supports regeneration', async () => {
     const fetchMock = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
       if (url.includes('/api/health')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.health) })
       if (url.includes('/api/meta')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.meta) })
       if (url.includes('/api/timeline')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.windows) })
       if (url.includes('/api/metrics')) return Promise.resolve({ ok: true, json: () => Promise.resolve(fixtureData.metrics) })
       if (url === '/api/windows/0' && !options?.method) {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve(windowDetailData) })
+        return Promise.reject(new Error('Window detail unavailable'))
       }
-      if (url === '/api/windows/0/note' && options?.method === 'POST') {
+      if (url.startsWith('/api/windows/0/note') && options?.method === 'POST') {
         return Promise.resolve({
           ok: true,
           json: () =>
@@ -112,17 +113,9 @@ describe('Frontend Note Panel', () => {
 
     render(<App />)
 
-    // Inspect window #0 via quick inspect
-    const quickBtn = await screen.findByRole('button', { name: /^#0 ·/ })
-    fireEvent.click(quickBtn)
-
-    // Wait for window modal
-    await screen.findByText('Window #0 Inspection')
-    const generateBtn = await screen.findByText('Generate analyst note')
-    expect(generateBtn).toBeInTheDocument()
-
-    // Click Generate note
-    fireEvent.click(generateBtn)
+    // The report must not depend on opening or loading a separate window modal.
+    const reportButton = await screen.findByRole('button', { name: 'Generate Gemma report' })
+    fireEvent.click(reportButton)
 
     // Verify note is rendered
     await screen.findByText('Anomalous burst in flow duration')
@@ -132,6 +125,11 @@ describe('Frontend Note Panel', () => {
     expect(screen.getByText('Automated note. Verify before acting.')).toBeInTheDocument()
     expect(screen.getByText('Gemma')).toBeInTheDocument()
     expect(screen.getByText('gemma4:e2b-mlx')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith('/api/windows/0/note', expect.objectContaining({ method: 'POST' }))
+    expect(screen.queryByText('Window #0 Inspection')).not.toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalledWith('/api/windows/0')
+    fireEvent.click(screen.getByRole('button', { name: 'Regenerate analyst note' }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/api/windows/0/note?refresh=true', expect.objectContaining({ method: 'POST' })))
   })
 
   it('renders template fallback badge when source is template', async () => {
@@ -207,5 +205,69 @@ describe('Frontend Note Panel', () => {
     await screen.findByText(/Could not generate analyst note \(status 503\)/)
     expect(screen.queryByText(/Traceback|secret internals/)).not.toBeInTheDocument()
     expect(screen.getByText('Try again')).toBeInTheDocument()
+  })
+})
+
+const validNote = {
+  window_id: 0, source: 'gemma', model: 'gemma4:e2b-mlx', threat_summary: 'Report A',
+  why_suspicious: 'Review these observations', suggested_checks: ['Check traffic'], caveat: 'Verify before acting',
+}
+
+describe('Analyst report request handling', () => {
+  it('shows loading immediately and gives a retry after a request stalls', async () => {
+    vi.useFakeTimers()
+    try {
+      const transport = vi.fn((_url: string, _options: RequestInit) => new Promise<Response>(() => {}))
+      vi.stubGlobal('fetch', transport)
+      render(<AnalystReport windowId={0} />)
+      fireEvent.click(screen.getByRole('button', { name: 'Generate analyst note' }))
+      expect(screen.getByRole('status')).toHaveTextContent('Generating analyst note')
+      await act(async () => { await vi.advanceTimersByTimeAsync(75000) })
+      expect(screen.getByRole('alert')).toHaveTextContent('Gemma took longer than 75 seconds')
+      expect(screen.getByRole('button', { name: 'Try again' })).toBeEnabled()
+      expect(transport.mock.calls[0][1].signal?.aborted).toBe(true)
+    } finally { vi.useRealTimers() }
+  })
+
+  it.each([
+    { ...validNote, window_id: 5 },
+    { ...validNote, suggested_checks: [] },
+    { ...validNote, threat_summary: '' },
+    { ...validNote, model: null },
+  ])('shows a readable error for an incomplete or mismatched response %#', async value => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => value })))
+    render(<AnalystReport windowId={0} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Generate analyst note' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('incomplete report')
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeEnabled()
+  })
+
+  it('handles disconnection without exposing exceptions and retries a fresh request', async () => {
+    const transport = vi.fn().mockRejectedValueOnce(new Error('Traceback: internal secret'))
+      .mockResolvedValueOnce({ ok: true, json: async () => validNote })
+    vi.stubGlobal('fetch', transport)
+    render(<AnalystReport windowId={0} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Generate analyst note' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Argus API is running on port 8000')
+    expect(screen.queryByText(/Traceback|internal secret/)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(await screen.findByText('Report A')).toBeVisible()
+    expect(transport).toHaveBeenLastCalledWith('/api/windows/0/note?refresh=true', expect.anything())
+  })
+
+  it('cancels window A and prevents its late report from replacing window B', async () => {
+    let finishA!: (value: unknown) => void
+    const transport = vi.fn().mockImplementationOnce(() => new Promise(resolve => { finishA = resolve }))
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ...validNote, window_id: 1, threat_summary: 'Report B' }) })
+    vi.stubGlobal('fetch', transport)
+    const view = render(<AnalystReport key={0} windowId={0} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Generate analyst note' }))
+    view.rerender(<AnalystReport key={1} windowId={1} />)
+    expect(transport.mock.calls[0][1].signal.aborted).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Generate analyst note' }))
+    expect(await screen.findByText('Report B')).toBeVisible()
+    await act(async () => { finishA({ ok: true, json: async () => validNote }) })
+    expect(screen.queryByText('Report A')).not.toBeInTheDocument()
+    expect(screen.getByText('Report B')).toBeVisible()
   })
 })
