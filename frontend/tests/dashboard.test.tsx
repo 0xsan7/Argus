@@ -27,6 +27,9 @@ test('fixture dashboard shows five grounded KPIs and the explicit fixture warnin
   }
   expect(within(kpis).getByText(String(metrics.test_windows))).toBeVisible()
   expect(screen.getByRole('heading', { name: 'Next-window risk' })).toBeVisible()
+  const riskPanel = screen.getByRole('region', { name: 'Next-window risk' })
+  const reportPanel = screen.getByRole('region', { name: 'Gemma analyst report' })
+  expect(riskPanel.compareDocumentPosition(reportPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   expect(screen.getByText('Evaluation ground truth')).toBeVisible()
   expect(screen.getByRole('combobox', { name: 'Dashboard model' })).toBeVisible()
   expect(screen.getByRole('link', { name: /Models/ })).toBeEnabled()

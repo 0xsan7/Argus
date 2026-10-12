@@ -14,6 +14,8 @@ import {
   CartesianGrid,
 } from 'recharts'
 import AnalystReport from './AnalystReport'
+import SignalHero from './SignalHero'
+import { Sidebar, SidebarLink, SidebarProvider } from './components/ui/sidebar'
 import type { DashboardData, Health, Meta, Metrics, ModelMetrics, ModelName, TimelineWindow, WindowDetail } from './types'
 import { chartSeries, selectModelTimeline, timelinePlotPoints, type TruthInterval } from './timeline'
 
@@ -247,9 +249,9 @@ export default function App() {
   const maxShapMagnitude = Math.max(...shapFeatures.map(feature => Math.abs(feature.shap)), 0)
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar" aria-label="Application navigation">
-        <a className="brand" href="/" aria-label="Argus dashboard">
+    <SidebarProvider>
+      <Sidebar>
+        <a className="brand" href="/" aria-label="Argus dashboard" onClick={event => { event.preventDefault(); navigate('/') }}>
           <svg viewBox="0 0 28 28" aria-hidden="true">
             <path d="M3 5h5l6 17L20 5h5L14 27Z" />
             <path d="M11 5h6l-3 8Z" />
@@ -260,15 +262,9 @@ export default function App() {
         </a>
         <div className="side-label">WORKSPACE</div>
         <nav aria-label="Main">
-          <a className={`nav-item ${page === 'dashboard' ? 'active' : ''}`} href="/" aria-current={page === 'dashboard' ? 'page' : undefined} onClick={event => { event.preventDefault(); navigate('/') }}>
-            <span className="nav-symbol">▦</span>Overview<span className="nav-dot" />
-          </a>
-          <a className={`nav-item ${page === 'models' ? 'active' : ''}`} href="/models" aria-current={page === 'models' ? 'page' : undefined} onClick={event => { event.preventDefault(); navigate('/models') }}>
-            <span className="nav-symbol">≋</span>Models
-          </a>
-          <a className={`nav-item ${page === 'about' ? 'active' : ''}`} href="/about" aria-current={page === 'about' ? 'page' : undefined} onClick={event => { event.preventDefault(); navigate('/about') }}>
-            <span className="nav-symbol">ⓘ</span>About
-          </a>
+          <SidebarLink link={{ href: '/', label: 'Overview', icon: <span className="nav-symbol" aria-hidden="true">▦</span> }} active={page === 'dashboard'} onNavigate={navigate} />
+          <SidebarLink link={{ href: '/models', label: 'Models', icon: <span className="nav-symbol" aria-hidden="true">≋</span> }} active={page === 'models'} onNavigate={navigate} />
+          <SidebarLink link={{ href: '/about', label: 'About', icon: <span className="nav-symbol" aria-hidden="true">ⓘ</span> }} active={page === 'about'} onNavigate={navigate} />
         </nav>
         <div className="sidebar-bottom">
           <span className="local-indicator" /> LOCAL WORKSPACE
@@ -280,7 +276,7 @@ export default function App() {
             ARGUS / LOCAL CONSOLE<span>v0.1</span>
           </div>
         </div>
-      </aside>
+      </Sidebar>
 
       <div className="main-shell">
         <header className="topbar">
@@ -314,6 +310,8 @@ export default function App() {
               </details>
             )}
           </div>
+
+          {page === 'dashboard' && <SignalHero />}
 
           {page === 'models' ? (
             <ModelsPage metrics={data?.metrics ?? null} loading={!data && !dashboardError} error={dashboardError} onRetry={retryDashboard} />
@@ -357,24 +355,12 @@ export default function App() {
                 />
               </section>}
 
-              {data && reportWindowId !== undefined && <section className="gemma-report-entry" aria-labelledby="gemma-report-title">
-                <div>
-                  <div className="eyebrow">LOCAL AI / ANALYST REPORTING</div>
-                  <h2 id="gemma-report-title">Gemma analyst report</h2>
-                  <p>Generate a summary, reasoning, suggested checks, and a verification caveat for a benchmark window. Uses the backend default model ({modelNames[data.meta.default_model]}); Gemma does not change risk scores. Template fallback is labeled if local Gemma is unavailable.</p>
-                </div>
-                <div className="gemma-report-actions">
-                  <label>Report window<select aria-label="Analyst report window" value={String(reportWindowId)} onChange={event => setReportWindow(event.target.value)}>{reportWindows.map(window => <option key={window.id} value={window.id}>Window #{window.id}</option>)}</select></label>
-                </div>
-                <div className="gemma-report-output"><AnalystReport key={reportWindowId} windowId={reportWindowId} buttonLabel="Generate Gemma report" /></div>
-              </section>}
-
               {data && data.windows.length === 0 ? (
                 <div className="state-panel" role="status">
                   <strong>No test-period windows available</strong>
                   <p>The API returned no windows for the test split. Check the selected artifacts or fixture data.</p>
                 </div>
-              ) : data && <section className="timeline-panel" aria-labelledby="timeline-title">
+              ) : data && <section id="risk-timeline" className="timeline-panel" aria-labelledby="timeline-title">
                 <div className="panel-heading">
                   <div>
                     <div className="eyebrow">01 / RISK TIMELINE</div>
@@ -501,6 +487,18 @@ export default function App() {
                   </span>
                   <span>Click flagged points or use Quick Inspect below</span>
                 </div>
+              </section>}
+
+              {data && reportWindowId !== undefined && <section className="gemma-report-entry" aria-labelledby="gemma-report-title">
+                <div>
+                  <div className="eyebrow">LOCAL AI / ANALYST REPORTING</div>
+                  <h2 id="gemma-report-title">Gemma analyst report</h2>
+                  <p>Generate a summary, reasoning, suggested checks, and a verification caveat for a benchmark window. Uses the backend default model ({modelNames[data.meta.default_model]}); Gemma does not change risk scores. Template fallback is labeled if local Gemma is unavailable.</p>
+                </div>
+                <div className="gemma-report-actions">
+                  <label>Report window<select aria-label="Analyst report window" value={String(reportWindowId)} onChange={event => setReportWindow(event.target.value)}>{reportWindows.map(window => <option key={window.id} value={window.id}>Window #{window.id}</option>)}</select></label>
+                </div>
+                <div className="gemma-report-output"><AnalystReport key={reportWindowId} windowId={reportWindowId} buttonLabel="Generate Gemma report" /></div>
               </section>}
 
               {data && data.windows.length > 0 && <section className="context-grid" aria-label="Experiment context">
@@ -664,7 +662,7 @@ export default function App() {
           </div>
         </div>
       )}
-    </div>
+    </SidebarProvider>
   )
 }
 
