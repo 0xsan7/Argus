@@ -1,0 +1,5 @@
+{"ts":1795601105.125,"uid":"CSample3","id.orig_h":"192.0.2.12","id.orig_p":49154,"id.resp_h":"203.0.113.53","id.resp_p":53,"proto":"udp","duration":0.04,"orig_bytes":64,"resp_bytes":124}
+{"ts":1795600805.5,"uid":"CSample1","id.orig_h":"192.0.2.10","id.orig_p":49152,"id.resp_h":"198.51.100.20","id.resp_p":443,"proto":"tcp","duration":1.25,"orig_bytes":512,"resp_bytes":2370,"orig_pkts":5,"resp_pkts":8}
+{synthetic malformed row}
+{"ts":1795600805.5,"uid":"CSample1","id.orig_h":"192.0.2.10","id.orig_p":49152,"id.resp_h":"198.51.100.20","id.resp_p":443,"proto":"tcp","duration":1.25,"orig_bytes":512,"resp_bytes":2370,"orig_pkts":5,"resp_pkts":8}
+{"ts":1795600925,"uid":"CSample2","id.orig_h":"192.0.2.10","id.resp_h":"198.51.100.22","proto":"icmp"}

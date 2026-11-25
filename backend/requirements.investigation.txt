@@ -1,0 +1,2 @@
+# Install alongside the existing backend dependencies from a local wheelhouse.
+psycopg[binary]==3.2.13
